@@ -18,7 +18,6 @@ import { DISTANCE_LABEL, distanceIn, SPEED_LABEL, speedIn } from "@/lib/settings
 import { SITE_DESCRIPTION } from "@/lib/site";
 import { useStoreBuild } from "@/lib/use-store-build";
 import { FeaturedBadges } from "./FeaturedBadges";
-import { SupportButton } from "@/components/SupportButton";
 import { day, GAME_FACTS, GRADE_NOTES, type HomeData, type HomeLayout, type HomeVenue, type WhatsNewDay } from "./home-data";
 import { CarThumb, GradeBadge, GradeLegend, OutlineThumb } from "./home-ui";
 import { LapMap } from "./LapMap";
@@ -611,7 +610,6 @@ export const HomeHub: React.FC<{ data: HomeData }> = ({ data }) => {
                               </a>
                               <span className="lc-hint text-[13px]">{m.works.join(", ")}</span>
                             </span>
-                            <SupportButton support={m.support} maker={m.name} variant="secondary" />
                           </li>
                         ))}
                       </ul>
