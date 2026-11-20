@@ -516,13 +516,14 @@ export const renderScale = choice("select", {
 export const frameRate = choice("segmented", {
   id: "fpsCap",
   label: "Frame rate",
-  hint: "30 fps keeps a phone cooler on long sessions. The car handles the same",
+  hint: "30 fps keeps a phone cooler on long sessions; 60 keeps a fast screen steady and the GPU cooler. The car handles the same",
   options: [
     { id: "0", label: "Full" },
+    { id: "60", label: "60 fps" },
     { id: "30", label: "30 fps" },
   ],
   read: (env) => String(env.settings.graphics.fpsCap),
-  write: (env, id) => env.update((s) => ({ ...s, graphics: { ...s.graphics, fpsCap: id === "30" ? 30 : 0 } })),
+  write: (env, id) => env.update((s) => ({ ...s, graphics: { ...s.graphics, fpsCap: id === "30" ? 30 : id === "60" ? 60 : 0 } })),
   initial: () => String(defaultPlayerSettings().graphics.fpsCap),
 });
 

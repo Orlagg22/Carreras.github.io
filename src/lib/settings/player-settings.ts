@@ -298,12 +298,16 @@ export interface GraphicsSettings {
    * default on touch screens, whose phones slow down as they heat up
    */
   autoQuality: boolean;
-  /** Frames drawn per second at most: 0 = as many as the screen shows, 30 = every other frame of a 60 Hz screen */
+  /**
+   * Frames drawn per second at most: 0 = as many as the screen shows, 30 = every other frame of a 60 Hz screen, 60 =
+   * a steady 60 on a 120 / 144 / 165 Hz screen (a smaller, steadier frame budget than "as many as the screen shows",
+   * whose frame times swing with the scene)
+   */
   fpsCap: FpsCap;
 }
 
-export type FpsCap = 0 | 30;
-export const FPS_CAPS: readonly FpsCap[] = [0, 30];
+export type FpsCap = 0 | 30 | 60;
+export const FPS_CAPS: readonly FpsCap[] = [0, 30, 60];
 
 export type TouchMode = "auto" | "on" | "off";
 

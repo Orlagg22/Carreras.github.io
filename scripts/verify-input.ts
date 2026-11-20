@@ -859,6 +859,7 @@ check('a touch screen starts on Medium graphics until the player picks; a saved 
     assert.equal(parsePlayerSettings({ graphics: { quality: 'high' } }).graphics.autoQuality, true, 'a save from before it takes the device default');
     assert.equal(parsePlayerSettings({ graphics: { autoQuality: false, fpsCap: 30 } }).graphics.autoQuality, false, 'a saved off is kept');
     assert.equal(parsePlayerSettings({ graphics: { fpsCap: 30 } }).graphics.fpsCap, 30, 'a saved 30 fps is kept');
+    assert.equal(parsePlayerSettings({ graphics: { fpsCap: 60 } }).graphics.fpsCap, 60, 'a saved 60 fps is kept');
     assert.equal(parsePlayerSettings({ graphics: { fpsCap: 45 } }).graphics.fpsCap, 0, 'an unknown cap is none');
   } finally {
     delete g.window;

@@ -25,6 +25,14 @@ const PROBE_FAR_M = 8000;
 const PROBE_INTENSITY = 1;
 /** Above the car's roof: what a glossy body sees of its surroundings */
 const PROBE_HEIGHT_M = 1.1;
+/**
+ * The prefilter (PMREM) is the probe's one big cost: a burst of blur passes drawn in a single frame. Run after every
+ * turn of six faces it was a hitch every 6 frames (10 a second at 60 fps), which reads as a constant stutter even when
+ * the average frame time is fine. The faces still draw one per frame, but the prefilter waits at least this long (ms)
+ * since the last one: a glossy car's reflections of a prefiltered world barely change in 0.3 s. Medium already draws a
+ * face every other frame, so it waits longer.
+ */
+export const PROBE_FILTER_MIN_MS: Record<Exclude<ReflectionQuality, "off">, number> = { high: 300, medium: 500 };
 
 export class CarReflectionProbe {
   private readonly cubeTarget: THREE.WebGLCubeRenderTarget;
@@ -38,6 +46,9 @@ export class CarReflectionProbe {
   private readonly roots = new Set<THREE.Object3D>();
   private readonly assigned = new WeakSet<THREE.Material>();
   private primed = false;
+  /** A full turn of faces is drawn and waits for the prefilter's turn (see PROBE_FILTER_MIN_MS) */
+  private filterPending = false;
+  private lastFilterMs = -Infinity;
   /** The visible sky's sun-disc switch: hidden while the probe films (as the sky's own environment bake does) */
   private sunDisc: { value: number } | null = null;
 
@@ -117,6 +128,7 @@ export class CarReflectionProbe {
         this.cubeCamera.update(r, this.scene);
         this.primed = true;
         this.face = 0;
+        this.filterPending = false;
         this.filter();
         filtered = true;
       } else {
@@ -132,7 +144,11 @@ export class CarReflectionProbe {
           this.scene.matrixWorldAutoUpdate = autoMatrices;
         }
         this.face = (this.face + 1) % 6;
-        if (this.face === 0) {
+        if (this.face === 0) this.filterPending = true;
+        // The prefilter runs when a full turn is ready and its minimum wait is over: a frame that also drew a face
+        // carries the burst, so the hitches come a few times a second instead of every sixth frame
+        if (this.filterPending && performance.now() - this.lastFilterMs >= PROBE_FILTER_MIN_MS[this.quality === "medium" ? "medium" : "high"]) {
+          this.filterPending = false;
           this.filter();
           filtered = true;
         }
@@ -150,6 +166,7 @@ export class CarReflectionProbe {
   }
 
   private filter(): void {
+    this.lastFilterMs = performance.now();
     // Reuses the previous output target (the typings name it a cube target; PMREM takes and returns a 2D one)
     this.envTarget = this.pmrem.fromCubemap(
       this.cubeTarget.texture,

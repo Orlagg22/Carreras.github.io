@@ -42,6 +42,11 @@ export interface PerfRow {
   workerPct: number | null;
   workerMaxMs: number | null;
   heapMb: number | null;
+  /** GPU-side objects alive at the end of the line: shader programs, textures, geometries. A program that appears
+   * after the loading screen is a compile the warm-up missed, and lands on a frame as a hitch */
+  programs: number;
+  textures: number;
+  geometries: number;
   /** The drawing buffer (px) and the step-down level then */
   size: string;
   level: number;
@@ -79,7 +84,7 @@ export function formatPerfReport(d: PerfReportData): string {
     `device: ${d.device}`,
     `now: ${d.settings}`,
     "",
-    "time   state   fps  p50   p95   max   long  work50 work95  sim/s  worker      heap   size        step",
+    "time   state   fps  p50   p95   max   long  work50 work95  sim/s  worker      heap   prog  tex  geo   size        step",
   ];
   for (const r of d.rows) {
     const worker = r.workerPct === null ? "-" : `${r1(r.workerPct)}% ${r1(r.workerMaxMs ?? 0)}ms`;
@@ -97,6 +102,9 @@ export function formatPerfReport(d: PerfReportData): string {
         String(Math.round(r.simMsPerS)).padStart(6),
         worker.padStart(11),
         (r.heapMb === null ? "-" : `${Math.round(r.heapMb)}MB`).padStart(6),
+        String(r.programs).padStart(5),
+        String(r.textures).padStart(4),
+        String(r.geometries).padStart(4),
         r.size.padStart(11),
         String(r.level).padStart(5),
       ].join(" ")
@@ -145,6 +153,8 @@ export class SessionPerfMonitor {
   private state: PerfRenderState = { settings: "", level: 0 };
   private hasWorker = false;
   private device = "";
+  /** Shader programs alive at the end of the previous line (0 before the first) */
+  private lastProgramCount = 0;
 
   constructor(private readonly renderer: THREE.WebGLRenderer) {}
 
@@ -215,8 +225,19 @@ export class SessionPerfMonitor {
     for (const p of Object.keys(w.phases) as PerfPhase[]) if (w.phases[p] > w.phases[phase]) phase = p;
     const memory = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
     const gl = this.renderer.getContext();
+    const info = this.renderer.info;
+    const programs = info.programs?.length ?? 0;
+    const textures = info.memory.textures;
+    const geometries = info.memory.geometries;
+    const t = this.nowS(nowMs);
+    // Only while driving, past the first seconds (the warm-up and the first frames compile what is left): a new program
+    // now is a stutter the loading screen should have taken
+    if (phase === "drive" && t > 30 && this.lastProgramCount > 0 && programs > this.lastProgramCount) {
+      this.note(nowMs, `${programs - this.lastProgramCount} new shader program(s) compiled while driving (${programs} now): a hitch the warm-up missed`);
+    }
+    this.lastProgramCount = programs;
     this.rows.push({
-      t: this.nowS(nowMs),
+      t,
       phase,
       fps: intervals.length / activeS,
       p50: percentile(intervals, 0.5),
@@ -229,6 +250,9 @@ export class SessionPerfMonitor {
       workerPct: this.hasWorker && w.workerSpanMs > 0 ? (100 * w.workerBusyMs) / w.workerSpanMs : null,
       workerMaxMs: this.hasWorker && w.workerSpanMs > 0 ? w.workerMaxMs : null,
       heapMb: memory ? memory.usedJSHeapSize / 1048576 : null,
+      programs,
+      textures,
+      geometries,
       size: `${gl.drawingBufferWidth}x${gl.drawingBufferHeight}`,
       level: this.state.level,
     });
