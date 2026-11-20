@@ -383,7 +383,7 @@ export const HomeHub: React.FC<{ data: HomeData }> = ({ data }) => {
                   onClick={() => go("cars")}
                   onPointerEnter={focusOnHover}
                   aria-label={`Change car: ${car.title}`}
-                  className={`${TILE} flex min-h-[230px] cursor-pointer flex-col gap-3 p-5 lg:col-span-3`}
+                  className={`${TILE} flex min-h-[230px] cursor-pointer flex-col gap-3 p-5 lg:col-span-5`}
                 >
                   <span className="flex min-h-0 flex-1 items-center justify-center">
                     <CarThumb key={car.id} src={car.thumb} eager className="h-auto max-h-full w-full object-contain" />

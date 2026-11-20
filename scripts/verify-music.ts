@@ -107,11 +107,11 @@ console.log('Shuffle');
 
 console.log('Settings');
 {
-  const parsed = parsePlayerSettings({ audio: { volume: 0.5, muted: true, menuMusic: 0.3, raceMusic: 2, replayMusic: -1, musicOff: ['air', 'air', 'nope', 3] } });
+  const parsed = parsePlayerSettings({ audio: { volume: 0.5, muted: true, menuMusic: 0.3, raceMusic: 2, replayMusic: -1, musicOff: ['pit-lane-dawn', 'pit-lane-dawn', 'nope', 3] } });
   const a = parsed.audio;
   check('volume and mute kept', a.volume === 0.5 && a.muted);
   check('levels kept and clamped', a.menuMusic === 0.3 && a.raceMusic === 1 && a.replayMusic === 0);
-  check('switched-off tracks: known ids, once each', a.musicOff.length === 1 && a.musicOff[0] === 'air', JSON.stringify(a.musicOff));
+  check('switched-off tracks: known ids, once each', a.musicOff.length === 1 && a.musicOff[0] === 'pit-lane-dawn', JSON.stringify(a.musicOff));
   const old = parsePlayerSettings({ audio: { volume: 0.7, muted: false } });
   check('an old save gets the music defaults', old.audio.menuMusic === DEFAULT_AUDIO_SETTINGS.menuMusic && old.audio.musicOff.length === 0);
   check('the race music sits 12 dB under the menus by default', Math.abs(20 * Math.log10(DEFAULT_AUDIO_SETTINGS.raceMusic / DEFAULT_AUDIO_SETTINGS.menuMusic) + 12) < 0.1);
@@ -319,7 +319,7 @@ async function playerChecks(): Promise<void> {
   }
   {
     const { c, decks } = await player();
-    const two = ['air', 'clair-de-lune'];
+    const two = ['pit-lane-dawn', 'garage-light'];
     c.setDisabled(new Set(menuIds.filter((id) => !two.includes(id))));
     c.setCue(cue('menu'));
     const d = c.debugState().active;
@@ -336,10 +336,10 @@ async function playerChecks(): Promise<void> {
   }
   {
     const { c } = await player();
-    const others = new Set(menuIds.filter((id) => id !== 'air'));
+    const others = new Set(menuIds.filter((id) => id !== 'pit-lane-dawn'));
     c.setDisabled(others);
     c.setCue(cue('menu'));
-    check('one menu track on: it plays', c.current?.id === 'air');
+    check('one menu track on: it plays', c.current?.id === 'pit-lane-dawn');
     c.setDisabled(new Set(menuIds));
     check('that one switched off too: silence', c.current === null);
     let told = 0;
@@ -347,7 +347,7 @@ async function playerChecks(): Promise<void> {
     c.setDisabled(new Set(menuIds));
     check('a press with every track still off tells nobody', told === 0);
     c.setDisabled(others);
-    check('a track switched back on starts the music again', c.current?.id === 'air', `${c.current?.id}`);
+    check('a track switched back on starts the music again', c.current?.id === 'pit-lane-dawn', `${c.current?.id}`);
   }
 }
 

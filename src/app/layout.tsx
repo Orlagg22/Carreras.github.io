@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     "force feedback",
     "WebGL",
   ],
-  authors: [{ name: "KhazP", url: "https://github.com/KhazP" }],
+  authors: [{ name: "Orlando" }, { name: "KhazP", url: "https://github.com/KhazP" }],
   creator: "KhazP",
   category: "games",
   alternates: { canonical: "/" },
@@ -78,7 +78,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION },
   // The deployed build's commit (src/lib/build-id.ts), read from the page by the usage counter and the update check
   // rather than built into the game's script, so a deploy doesn't change the game's cached files
-  ...(BUILD_ID ? { other: { "lc-build": BUILD_ID } } : {}),
+  // The game rewrites its own text every frame; a browser translation breaks it ("the simulator stopped")
+  other: { google: "notranslate", ...(BUILD_ID ? { "lc-build": BUILD_ID } : {}) },
   // Metadata URLs don't get a base path on their own
   // The SVG emblem draws its small version under 32 px; the PNG and ICO frames are for browsers without SVG icons
   icons: {
@@ -130,6 +131,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      translate="no"
       className={`dark ${geist.variable} ${geistMono.variable} ${chakraPetch.variable}`}
     >
       <body className="bg-lc-void text-lc-chalk antialiased">

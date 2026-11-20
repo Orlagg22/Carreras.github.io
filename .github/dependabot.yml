@@ -1,32 +1,14 @@
-# Weekly dependency update PRs, grouped so each week brings a handful instead of one per package.
-# Security updates are separate (enabled in the repository settings) and arrive as soon as an advisory lands.
+# Noryx is a personal copy: version-update pull requests are switched off (limit 0), so the repository does not fill
+# with weekly PRs. Raise the limit (or restore the original file) to turn them back on.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    groups:
-      # Next.js and React move together; a major bump of either needs a look before merging
-      next-react:
-        patterns: ["next", "react", "react-dom", "@types/react", "@types/react-dom"]
-      three:
-        patterns: ["three", "@types/three", "postprocessing"]
-      build-tools:
-        dependency-type: development
-        patterns: ["*"]
-        exclude-patterns: ["@types/react", "@types/react-dom", "@types/three"]
-      runtime-minor:
-        dependency-type: production
-        update-types: ["minor", "patch"]
-        patterns: ["*"]
+    open-pull-requests-limit: 0
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-      day: monday
-    groups:
-      actions:
-        patterns: ["*"]
+    open-pull-requests-limit: 0

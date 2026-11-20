@@ -113,7 +113,7 @@ export default function PrivacyPage() {
           . Tell me the driver name; I will ask you to confirm it is yours.
         </p>
         <p className={READ}>
-          Noryx is made and run by Alp Yalay. The code that does everything described here is open: the game and
+          Noryx is a modified version of LibreCorsa, made by Alp Yalay and modified and published by Orlando. The code that does everything described here is open: the game and
           its online side are in the same{" "}
           <a href={REPO_URL} className={TEXT_LINK}>
             repository
