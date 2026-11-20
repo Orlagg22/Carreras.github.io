@@ -19,6 +19,7 @@ import { DISTANCE_LABEL, distanceIn } from "@/lib/settings/units";
 import { carById, type CarId } from "@/lib/cars/car-registry";
 import { carMaker, circuitMaker } from "@/lib/modders";
 import { useStoreBuild } from "@/lib/use-store-build";
+import { SHOW_SUPPORT_LINKS } from "@/components/SupportButton";
 
 /** The tips, naming the player's own camera and racing-line keys as printed on their keyboard */
 const tipsFor = (camera: string, line: string) => [
@@ -81,14 +82,14 @@ const MakersLines: React.FC<{ trackId: string; trackName: string; carId: CarId }
     { key: "car", lead: `${carById(carId).title}: ${car.role.toLowerCase()} by`, maker: car },
     { key: "game", lead: "Noryx by", maker: { role: "Game", name: "Orlando" } },
   ].filter((l): l is NonNullable<typeof l> => l !== null);
-  const anySupport = !store && lines.some((l) => l.maker.support);
+  const anySupport = SHOW_SUPPORT_LINKS && !store && lines.some((l) => l.maker.support);
   return (
     <div className="flex flex-col gap-2 border-t border-lc-line pt-3.5 short:pt-2.5">
       <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[14px] leading-snug text-lc-slate short:text-[12px]">
         {lines.map((l) => (
           <li key={l.key}>
             {l.lead} <span className="font-semibold text-lc-chalk">{l.maker.name}</span>
-            {!store && l.maker.support ? <span className="text-lc-fog"> · donations welcome</span> : null}
+            {SHOW_SUPPORT_LINKS && !store && l.maker.support ? <span className="text-lc-fog"> · donations welcome</span> : null}
           </li>
         ))}
       </ul>

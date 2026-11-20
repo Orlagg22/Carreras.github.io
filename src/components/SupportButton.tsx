@@ -7,6 +7,9 @@ import { Icon } from "@/components/ui/icons";
 import { supportLabel, type SupportLink } from "@/lib/modder-support";
 import { useStoreBuild } from "@/lib/use-store-build";
 
+/** The modders' donation links (Patreon, PayPal...) are hidden everywhere while this is false: the button, the Credits list, the note after a drive and the loading screen's mentions */
+export const SHOW_SUPPORT_LINKS: boolean = false;
+
 /**
  * A modder's support link as a button: "Donate via PayPal", "Support on Patreon". Never in the Android app, which
  * leaves payment links out for Google Play's rules (store-mode.ts), as it does the game's own coffee link.
@@ -32,7 +35,7 @@ export function SupportButton({
   named?: boolean;
 }) {
   const store = useStoreBuild();
-  if (!support || store) return null;
+  if (!SHOW_SUPPORT_LINKS || !support || store) return null;
   return (
     <Button
       href={support.url}

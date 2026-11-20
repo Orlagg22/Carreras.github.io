@@ -46,7 +46,7 @@ import { REPO_URL, TAKEDOWN_URL } from "@/lib/site";
 import { useStoreBuild } from "@/lib/use-store-build";
 import { moddersList } from "@/lib/modders";
 import type { PromptItem } from "@/lib/support-prompt";
-import { SupportButton } from "@/components/SupportButton";
+import { SHOW_SUPPORT_LINKS, SupportButton } from "@/components/SupportButton";
 import { cx } from "@/components/ui/styles";
 import { withBasePath } from "@/lib/base-path";
 import { EmbeddedBadge } from "./EmbeddedBadge";
@@ -140,7 +140,7 @@ const worksLine = (works: readonly string[]) => (works.length > 3 ? `${works.sli
 const ModderSupport: React.FC = () => {
   const store = useStoreBuild();
   const modders = useMemo(() => moddersList().filter((m) => m.support), []);
-  if (store || !modders.length) return null;
+  if (!SHOW_SUPPORT_LINKS || store || !modders.length) return null;
   return (
     <section aria-labelledby="support-modders" className="flex flex-col gap-1.5 border-t border-lc-line py-4">
       <h3 id="support-modders" className="lc-row-label m-0">
@@ -976,7 +976,7 @@ export const TitleMenu: React.FC<TitleMenuProps> = (props) => {
             </nav>
 
             <div className="flex w-full max-w-[380px] flex-col gap-3">
-            {props.supportNote?.length ? (
+            {SHOW_SUPPORT_LINKS && props.supportNote?.length ? (
               <SupportNote items={props.supportNote} onClose={props.onCloseSupportNote} onThanked={props.onSupportThanked} />
             ) : null}
             <Sheet role="region" aria-label="Up next" className="flex w-full flex-col gap-4 short:hidden">
