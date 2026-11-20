@@ -222,6 +222,24 @@ const Credits: React.FC = () => (
       circuit pipeline.
     </p>
 
+    {/* The legal notice the AGPL asks the interface to show: who wrote the base, who changed it, the license, no warranty, where the source is */}
+    <p className="lc-body m-0 max-w-[760px]">
+      Noryx is based on{" "}
+      <a href={REPO_URL} target="_blank" rel="noreferrer" className={linkClass}>
+        LibreCorsa
+      </a>{" "}
+      by Alp Yalay, modified by Orlando. It is free software under the{" "}
+      <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer" className={linkClass}>
+        GNU AGPL v3.0
+      </a>{" "}
+      and comes with ABSOLUTELY NO WARRANTY. You may use, share and change it under that license. Source code of this
+      version:{" "}
+      <a href="https://github.com/Orlagg22/Carreras.github.io" target="_blank" rel="noreferrer" className={linkClass}>
+        github.com/Orlagg22/Carreras.github.io
+      </a>
+      .
+    </p>
+
     <ModderSupport />
 
     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-x-8">
