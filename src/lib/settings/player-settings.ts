@@ -35,6 +35,7 @@ import {
 import { KB_STEER_RETURN_S, KB_STEER_RISE_S } from "@/lib/input/keyboard-steer";
 import { GYRO_LOCK_MAX_DEG, GYRO_LOCK_MIN_DEG, GYRO_SENSITIVITY_MAX, GYRO_SENSITIVITY_MIN } from "@/lib/input/gyro-steer";
 import { isTouchDevice } from "@/lib/input/touch-input";
+import { classifyRenderer, rendererName } from "@/lib/render/gpu-health";
 import { isCameraMode } from "@/lib/render/camera-modes";
 import { parseCameraNudges, type CameraNudges } from "@/lib/settings/camera-nudges";
 import { resolveCarId, type CarId } from "@/lib/cars/car-registry";
@@ -447,7 +448,43 @@ export const DEFAULT_GRAPHICS_SETTINGS: GraphicsSettings = {
  */
 export function defaultGraphicsSettings(): GraphicsSettings {
   const touch = isTouchDevice();
+  // A modest PC or laptop (few cores, little memory, an older integrated or software GPU) starts on Low at 80% resolution
+  // with automatic quality on, so the first lap is smooth; the player can raise it in Settings
+  if (!touch && isModestDevice()) {
+    return { ...DEFAULT_GRAPHICS_SETTINGS, quality: "low", renderScale: 0.8, autoQuality: true };
+  }
   return { ...DEFAULT_GRAPHICS_SETTINGS, quality: touch ? "medium" : DEFAULT_GRAPHICS_SETTINGS.quality, autoQuality: touch };
+}
+
+let modestDevice: boolean | null = null;
+
+/**
+ * Whether this computer is likely to struggle with the game: 4 or fewer CPU threads, 4 GB or less of memory (where the
+ * browser says), no WebGL, or a CPU rasteriser / older Intel GPU. Asked once with a throwaway WebGL context, which is
+ * released at once. False on the server, where there is no device to ask.
+ */
+function isModestDevice(): boolean {
+  if (typeof window === "undefined" || typeof document === "undefined") return false;
+  if (modestDevice !== null) return modestDevice;
+  let modest = false;
+  try {
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    if (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4) modest = true;
+    if (nav.deviceMemory && nav.deviceMemory <= 4) modest = true;
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+    if (!gl) {
+      modest = true;
+    } else {
+      const gpu = classifyRenderer(rendererName(gl));
+      if (gpu === "weak" || gpu === "software") modest = true;
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    }
+  } catch {
+    // The probe failing says nothing about the machine: keep the other signals
+  }
+  modestDevice = modest;
+  return modest;
 }
 
 export const DEFAULT_TOUCH_SETTINGS: TouchSettings = { mode: "auto", tiltSteer: false, tiltRangeDeg: 30 };
