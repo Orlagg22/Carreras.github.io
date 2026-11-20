@@ -42,7 +42,7 @@ import { DEFAULT_RACE_SETUP, raceStartSuffix } from "@/lib/sim/race-setup";
 import { TIME_OF_DAY_LABELS, WEATHER_LABELS } from "@/lib/sim/weather";
 import { NoryxLogo } from "@/components/ui/NoryxLogo";
 import { AI_SKILL_DEFAULT, aiSkillLabel } from "@/lib/sim/ai-tuning";
-import { REPO_URL, SUPPORT_URL, TAKEDOWN_URL } from "@/lib/site";
+import { REPO_URL, TAKEDOWN_URL } from "@/lib/site";
 import { useStoreBuild } from "@/lib/use-store-build";
 import { moddersList } from "@/lib/modders";
 import type { PromptItem } from "@/lib/support-prompt";
@@ -549,7 +549,6 @@ export const TitleMenu: React.FC<TitleMenuProps> = (props) => {
   // The music's footer control: once a track has played, or while the music is switched off
   const musicShown = Boolean(props.onToggleMusicMute) && (Boolean(props.nowPlaying) || props.musicMuted === true);
   const units = useUnits();
-  const storeBuild = useStoreBuild();
   // The circuit panel opened from the race setup's Event card: loading a circuit then returns to the race setup
   const fromRaceRef = useRef(false);
 
@@ -686,21 +685,7 @@ export const TitleMenu: React.FC<TitleMenuProps> = (props) => {
       run: () => (props.onOpenSettings ? props.onOpenSettings() : onControls()),
     },
     { id: "credits", label: "Credits", detail: "Open-source sim · asset sources", icon: "credits" as const, panel: "credits", run: () => openPanel("credits") },
-    {
-      id: "request",
-      label: "Feedback & requests",
-      short: "Feedback",
-      detail: "Bugs, ideas, cars and tracks",
-      icon: "feedback" as const,
-      panel: "request",
-      run: () => openPanel("request"),
-    },
     { id: "privacy", label: "Privacy", detail: "What the game keeps and sends", icon: "privacy" as const, href: withBasePath("/privacy") },
-    // Not in the Android app (store-mode.ts)
-    ...(storeBuild
-      ? []
-      : [{ id: "support", label: "Buy me a coffee", detail: "Support development", icon: "support" as const, href: SUPPORT_URL }]),
-    { id: "github", label: "GitHub", detail: "Source code", icon: "source" as const, href: REPO_URL },
   ];
   const panelItems = items.filter((i) => i.panel);
   // Some panels exist only while their props do: when an open one's go away, back to the title screen (and it stays

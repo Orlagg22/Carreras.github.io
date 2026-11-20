@@ -17,7 +17,7 @@ import { useInputMode } from "./input-mode";
 import { useUnits } from "@/lib/settings/ui-prefs";
 import { DISTANCE_LABEL, distanceIn } from "@/lib/settings/units";
 import { carById, type CarId } from "@/lib/cars/car-registry";
-import { carMaker, circuitMaker, GAME_MAKER } from "@/lib/modders";
+import { carMaker, circuitMaker } from "@/lib/modders";
 import { useStoreBuild } from "@/lib/use-store-build";
 
 /** The tips, naming the player's own camera and racing-line keys as printed on their keyboard */
@@ -80,7 +80,6 @@ const MakersLines: React.FC<{ trackId: string; trackName: string; carId: CarId }
     circuit ? { key: "circuit", lead: `${trackName} by`, maker: circuit } : null,
     { key: "car", lead: `${carById(carId).title}: ${car.role.toLowerCase()} by`, maker: car },
     { key: "game", lead: "Noryx by", maker: { role: "Game", name: "Orlando" } },
-    { key: "base", lead: "Based on LibreCorsa by", maker: GAME_MAKER },
   ].filter((l): l is NonNullable<typeof l> => l !== null);
   const anySupport = !store && lines.some((l) => l.maker.support);
   return (
