@@ -695,7 +695,6 @@ export const TitleMenu: React.FC<TitleMenuProps> = (props) => {
       panel: "request",
       run: () => openPanel("request"),
     },
-    { id: "press", label: "Press & media", detail: "Coverage and press kit", icon: "press" as const, href: withBasePath("/press") },
     { id: "privacy", label: "Privacy", detail: "What the game keeps and sends", icon: "privacy" as const, href: withBasePath("/privacy") },
     // Not in the Android app (store-mode.ts)
     ...(storeBuild

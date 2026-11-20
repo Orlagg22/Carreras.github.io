@@ -401,30 +401,6 @@ export const HomeHub: React.FC<{ data: HomeData }> = ({ data }) => {
                     </span>
                   </span>
                 </button>
-
-                <a
-                  href={withBasePath("/press")}
-                  onPointerEnter={focusOnHover}
-                  aria-label={`Press & media: ${data.coverageCount} articles and videos, and the press kit`}
-                  className={`${TILE} flex min-h-[230px] flex-col gap-3 p-5 lg:col-span-2`}
-                >
-                  <span className="flex flex-col gap-1">
-                    <span className={TILE_TITLE}>Press & media</span>
-                    <span className="lc-hint text-[13px]">{data.coverageCount} articles and videos so far</span>
-                  </span>
-                  <span aria-hidden className="flex min-h-0 flex-1 flex-col overflow-hidden [mask-image:linear-gradient(to_bottom,#000_calc(100%-1rem),transparent)]">
-                    {data.coverage.slice(0, 3).map((a) => (
-                      <span key={a.url} className="flex min-w-0 flex-col gap-0.5 border-t border-lc-line py-2.5">
-                        <span className="truncate text-[13px] font-semibold text-lc-chalk">{a.outlet}</span>
-                        <span className="lc-hint line-clamp-2">{a.title}</span>
-                      </span>
-                    ))}
-                  </span>
-                  <span aria-hidden className={`${MORE} mt-auto shrink-0`}>
-                    Coverage and press kit
-                    <Icon name="next" />
-                  </span>
-                </a>
               </div>
             ) : null}
 
@@ -654,49 +630,6 @@ export const HomeHub: React.FC<{ data: HomeData }> = ({ data }) => {
                     </section>
                   ) : null}
                 </div>
-                <section aria-labelledby="press-and-media" className="flex min-w-0 flex-col gap-5">
-                  <h2 id="press-and-media" className="lc-h2">
-                    Press & media
-                  </h2>
-                  <ul className="m-0 flex list-none flex-col p-0">
-                    {data.coverage.map((a) => (
-                      <li key={a.url} className="border-t border-lc-line last:border-b">
-                        <a
-                          href={a.url}
-                          target="_blank"
-                          rel="noopener"
-                          onPointerEnter={focusOnHover}
-                          className="group flex items-start justify-between gap-4 rounded-lc-nub py-3.5 text-lc-chalk no-underline"
-                        >
-                          <span className="flex min-w-0 flex-col gap-1">
-                            <span className="text-[15px] leading-snug font-semibold text-lc-fog transition-colors duration-200 group-hover:text-lc-chalk">
-                              {a.title}
-                            </span>
-                            <span className="lc-hint text-[13px]">
-                              {a.outlet} <span aria-hidden>·</span> <span className="lc-mono">{day(a.date)}</span>
-                            </span>
-                          </span>
-                          <Icon name="externalLink" className="mt-0.5 text-lc-slate transition-colors duration-200 group-hover:text-lc-chalk" />
-                          <span className="sr-only">(opens in a new tab)</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex flex-wrap gap-x-6 gap-y-3 text-[14px]">
-                    {[
-                      ["All coverage and the press kit", withBasePath("/press")],
-                      ["Privacy", withBasePath("/privacy")],
-                      ["GitHub", data.repoUrl],
-                      // Not in the Android app (store-mode.ts)
-                      ...(storeBuild ? [] : [["Buy me a coffee", data.supportUrl]]),
-                    ].map(([label, href]) => (
-                      <a key={label} href={href} onPointerEnter={focusOnHover} className={`inline-flex items-center pointer-coarse:min-h-11 ${TEXT_LINK}`}>
-                        {label}
-                      </a>
-                    ))}
-                  </div>
-                  <FeaturedBadges className="pt-2" />
-                </section>
               </div>
             ) : null}
           </div>

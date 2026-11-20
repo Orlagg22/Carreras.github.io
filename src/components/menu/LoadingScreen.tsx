@@ -79,7 +79,8 @@ const MakersLines: React.FC<{ trackId: string; trackName: string; carId: CarId }
   const lines = [
     circuit ? { key: "circuit", lead: `${trackName} by`, maker: circuit } : null,
     { key: "car", lead: `${carById(carId).title}: ${car.role.toLowerCase()} by`, maker: car },
-    { key: "game", lead: "Noryx by", maker: GAME_MAKER },
+    { key: "game", lead: "Noryx by", maker: { role: "Game", name: "Orlando" } },
+    { key: "base", lead: "Based on LibreCorsa by", maker: GAME_MAKER },
   ].filter((l): l is NonNullable<typeof l> => l !== null);
   const anySupport = !store && lines.some((l) => l.maker.support);
   return (
