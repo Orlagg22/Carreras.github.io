@@ -302,8 +302,8 @@ export interface GraphicsSettings {
   fpsCap: FpsCap;
 }
 
-export type FpsCap = 0 | 30;
-export const FPS_CAPS: readonly FpsCap[] = [0, 30];
+export type FpsCap = 0 | 30 | 60;
+export const FPS_CAPS: readonly FpsCap[] = [0, 30, 60];
 
 export type TouchMode = "auto" | "on" | "off";
 
