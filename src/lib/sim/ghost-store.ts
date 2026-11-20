@@ -1,0 +1,203 @@
+/**
+ * Browser storage for lap ghosts: personal bests in IndexedDB, plus .json ghost files
+ * exported to and imported from the user's disk. Every call degrades to null / false / []
+ * when storage is unavailable (SSR, private windows, blocked site data).
+ */
+import type { VehicleModelId } from "@/types/f1";
+import { validateLapRecording } from "@/lib/sim/lap-recorder";
+import { lapBoardClass, type LapRecording } from "@/lib/sim/lap-types";
+
+const DB_NAME = "bugesera-laps";
+const DB_VERSION = 1;
+const STORE_NAME = "bestLaps";
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+
+let dbPromise: Promise<IDBDatabase | null> | null = null;
+
+/**
+ * Store key of a personal best: one per circuit, car and board class (assists, realism, surface, physics revision),
+ * as the online boards split them, so an assisted lap never replaces the pro best. Laps saved before the split (no
+ * conditions) keep the old circuit|car key.
+ */
+function lapKey(trackId: string, vehicle: VehicleModelId, board: string | null = null): string {
+  return board ? `${trackId}|${vehicle}|${board}` : `${trackId}|${vehicle}`;
+}
+
+const boardOf = (lap: LapRecording): string | null => (lap.conditions ? lapBoardClass(lap.conditions) : null);
+
+/** Opens the lap database once; resolves null when IndexedDB is unavailable */
+function openDb(): Promise<IDBDatabase | null> {
+  if (!dbPromise) {
+    dbPromise = new Promise<IDBDatabase | null>((resolve) => {
+      try {
+        if (typeof indexedDB === "undefined") {
+          resolve(null);
+          return;
+        }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(STORE_NAME)) {
+            req.result.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = () => {
+          const db = req.result;
+          // Another tab changed the schema: close and reopen on next use
+          db.onversionchange = () => {
+            db.close();
+            dbPromise = null;
+          };
+          resolve(db);
+        };
+        req.onerror = () => resolve(null);
+      } catch {
+        resolve(null);
+      }
+    }).then((db) => {
+      // A failed open is not cached: a transient error (or storage freed later) gets another try on the next call
+      if (!db) dbPromise = null;
+      return db;
+    });
+  }
+  return dbPromise;
+}
+
+/** Runs one request in its own transaction; resolves null on any failure */
+function runRequest<T>(
+  mode: IDBTransactionMode,
+  build: (store: IDBObjectStore) => IDBRequest<T>,
+): Promise<T | null> {
+  return openDb().then(
+    (db) =>
+      new Promise<T | null>((resolve) => {
+        if (!db) {
+          resolve(null);
+          return;
+        }
+        try {
+          const tx = db.transaction(STORE_NAME, mode);
+          const req = build(tx.objectStore(STORE_NAME));
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+          tx.onabort = () => resolve(null);
+        } catch {
+          resolve(null);
+        }
+      }),
+  );
+}
+
+/**
+ * Personal-best lap for a circuit and car on a board class, or null. Without a class (or with no lap on it yet) a
+ * best saved before boards were split is used, being of unknown class.
+ */
+export async function loadBestLap(trackId: string, vehicle: VehicleModelId, board: string | null = null): Promise<LapRecording | null> {
+  const read = async (key: string) => {
+    const raw = await runRequest("readonly", (store) => store.get(key));
+    if (raw === null || raw === undefined) return null;
+    const lap = validateLapRecording(raw);
+    return lap && lap.trackId === trackId && lap.vehicle === vehicle ? lap : null;
+  };
+  // A best saved before the 2026 Prototype was renamed sits under its old id
+  const old = vehicle === "lc26" ? ("vf26" as VehicleModelId) : null; // keep-old-id
+  if (board) {
+    const lap = (await read(lapKey(trackId, vehicle, board))) ?? (old ? await read(lapKey(trackId, old, board)) : null);
+    if (lap) return lap;
+  }
+  const legacy = (await read(lapKey(trackId, vehicle))) ?? (old ? await read(lapKey(trackId, old)) : null);
+  return legacy && (!board || boardOf(legacy) === null || boardOf(legacy) === board) ? legacy : null;
+}
+
+/** Stores the lap if it is faster than the stored one (or none is stored); resolves true when stored */
+export async function saveBestLapIfFaster(rec: LapRecording): Promise<boolean> {
+  const lap = validateLapRecording(rec);
+  if (!lap) return false;
+  const db = await openDb();
+  if (!db) return false;
+  const key = lapKey(lap.trackId, lap.vehicle, boardOf(lap));
+  // A best saved before the 2026 Prototype was renamed counts too: a slower first lap under the new id must not hide it
+  const oldKey = lap.vehicle === "lc26" ? lapKey(lap.trackId, "vf26" as VehicleModelId, boardOf(lap)) : null; // keep-old-id
+  return new Promise<boolean>((resolve) => {
+    try {
+      // Read and write in one transaction so two laps cannot race each other
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      let stored = false;
+      const current = store.get(key);
+      const put = () => {
+        store.put(lap, key);
+        stored = true;
+      };
+      current.onsuccess = () => {
+        const best = validateLapRecording(current.result ?? null);
+        if (best && best.lapTimeMs <= lap.lapTimeMs) return;
+        if (!oldKey) return put();
+        const prior = store.get(oldKey);
+        prior.onsuccess = () => {
+          const older = validateLapRecording(prior.result ?? null);
+          if (older && older.lapTimeMs <= lap.lapTimeMs) return;
+          put();
+        };
+      };
+      tx.oncomplete = () => resolve(stored);
+      tx.onabort = () => resolve(false);
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+/** Every stored personal best (for the local leaderboard), fastest first */
+export async function listBestLaps(): Promise<LapRecording[]> {
+  const all = await runRequest<unknown[]>("readonly", (store) => store.getAll());
+  if (!all) return [];
+  const laps: LapRecording[] = [];
+  for (const raw of all) {
+    const lap = validateLapRecording(raw);
+    if (lap) laps.push(lap);
+  }
+  return laps.sort((a, b) => a.lapTimeMs - b.lapTimeMs);
+}
+
+/** Removes the stored personal best for a circuit and car (on one board class; without one, the unsplit best) */
+export async function deleteBestLap(trackId: string, vehicle: VehicleModelId, board: string | null = null): Promise<void> {
+  await runRequest("readwrite", (store) => store.delete(lapKey(trackId, vehicle, board)));
+}
+
+/** m.ss.mmm, e.g. 1.23.456 for 83456 ms */
+function formatLapFileTime(ms: number): string {
+  const total = Math.max(0, Math.round(Number.isFinite(ms) ? ms : 0));
+  const minutes = Math.floor(total / 60000);
+  const seconds = Math.floor((total % 60000) / 1000);
+  const millis = total % 1000;
+  return `${minutes}.${String(seconds).padStart(2, "0")}.${String(millis).padStart(3, "0")}`;
+}
+
+/** Downloads the lap as a .json ghost file (anchor + Blob URL, revoked afterwards). File name: `ghost-<trackId>-<vehicle>-<m.ss.mmm>.json` */
+export function exportLapFile(rec: LapRecording): void {
+  try {
+    const safe = (s: string) => s.replace(/[^A-Za-z0-9_-]+/g, "-");
+    const blob = new Blob([JSON.stringify(rec)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `ghost-${safe(rec.trackId)}-${safe(rec.vehicle)}-${formatLapFileTime(rec.lapTimeMs)}.json`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch {
+    // Downloads blocked or unavailable: nothing to do
+  }
+}
+
+/** Reads a user-chosen file (max 5 MB) and validates it with validateLapRecording; resolves null when invalid */
+export async function importLapFile(file: File): Promise<LapRecording | null> {
+  try {
+    if (file.size > MAX_IMPORT_BYTES) return null;
+    const text = await file.text();
+    return validateLapRecording(JSON.parse(text));
+  } catch {
+    return null;
+  }
+}

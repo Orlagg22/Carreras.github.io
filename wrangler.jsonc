@@ -1,0 +1,87 @@
+// Noryx on Cloudflare: the static export in ./out served from librecorsa.org.
+// Static files are served straight from Cloudflare's asset store. The Worker script (cloudflare/worker.js) only runs
+// for /__migrate, which carries a player's saved data over from the old GitHub Pages address, for /api (the online
+// side: room codes, connection servers, lap boards; cloudflare/api), and for paths with no static file: those are
+// looked up in the noryx-assets R2 bucket, where CI puts files over the 25 MiB asset limit.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "noryx",
+  "account_id": "e8e4c67fe1996448b0e6ab6238f31867",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "run_worker_first": ["/__migrate", "/api/*"]
+  },
+  "r2_buckets": [
+    { "binding": "LARGE_ASSETS", "bucket_name": "noryx-assets" },
+    // Ghost samples of the laps on the boards
+    { "binding": "GHOSTS", "bucket_name": "noryx-ghosts" }
+  ],
+  // The lap boards (cloudflare/api/board.ts). After changing cloudflare/migrations:
+  //   npx wrangler d1 migrations apply noryx-board --remote
+  "d1_databases": [
+    {
+      "binding": "BOARD_DB",
+      "database_name": "noryx-board",
+      "database_id": "25f4a169-a3fe-454b-995f-eb0509f4f56f",
+      "migrations_dir": "cloudflare/migrations"
+    }
+  ],
+  // Online switches, read by the game at run time (GET /api/config). Set one to "off" and deploy to turn that
+  // feature off for everyone: the game then falls back to what works without a server.
+  //   ONLINE_ROOMS  room codes are paired by this Worker (off: the public PeerJS broker pairs them, as before)
+  //   ONLINE_BOARD  the online lap boards (off: lap times stay in each player's browser)
+  //   ONLINE_RACES  scheduled races on this Worker's race server (off: no scheduled races; rooms are untouched)
+  //   ONLINE_USAGE  the anonymous usage counter: minutes driven per day, circuit, car, mode, country, and on their own
+  //                 input, kind of screen, weather, assists and build (off: nothing sent)
+  //   ONLINE_LIVE   the live count on the title screen: tabs with the game in view send an empty heartbeat a minute
+  //                 (off: no heartbeats, and the title screen shows the drivers to date alone)
+  // ANALYTICS_*: where Cloudflare's own numbers on the /admin page come from (cloudflare/api/analytics.ts), read with
+  // the secret CF_ANALYTICS_TOKEN (npx wrangler secret put CF_ANALYTICS_TOKEN). ANALYTICS_ZONE_ID is librecorsa.org's
+  // zone, for the site's traffic per day (the zone id on the domain's overview page in the dashboard)
+  "vars": {
+    "ONLINE_ROOMS": "on",
+    "ONLINE_BOARD": "on",
+    "ONLINE_RACES": "on",
+    "ONLINE_USAGE": "on",
+    "ONLINE_LIVE": "on",
+    "ANALYTICS_ACCOUNT_ID": "e8e4c67fe1996448b0e6ab6238f31867",
+    "ANALYTICS_D1_ID": "25f4a169-a3fe-454b-995f-eb0509f4f56f",
+    "ANALYTICS_ZONE_ID": "419e313480b2e43867440fdad85d0704"
+  },
+  // Private rooms: one small object per room code, asleep between messages (cloudflare/api/room.ts).
+  // Scheduled races: one object per race, which passes every car's state on while it runs (cloudflare/api/race.ts).
+  // The live count: one object that counts the last minute's heartbeats in memory and stores nothing (cloudflare/api/presence.ts)
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOMS", "class_name": "RoomServer" },
+      { "name": "RACES", "class_name": "RaceServer" },
+      { "name": "PRESENCE", "class_name": "PresenceCounter" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RoomServer", "RaceServer"] },
+    { "tag": "v2", "new_sqlite_classes": ["PresenceCounter"] }
+  ],
+  // Room connections one address may open per minute; usage reports one address may send per minute; heartbeats one
+  // address may send per minute (a tab sends one: a few tabs or players behind one address still count); admin
+  // requests, right key or not, and requests to paths the API doesn't serve (a page load of /admin makes two, a
+  // change of range one more); lap uploads and name changes, before the hourly count on the database
+  "ratelimits": [
+    { "name": "ROOM_LIMIT", "namespace_id": "1001", "simple": { "limit": 30, "period": 60 } },
+    { "name": "USAGE_LIMIT", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
+    { "name": "LIVE_LIMIT", "namespace_id": "1003", "simple": { "limit": 6, "period": 60 } },
+    { "name": "ADMIN_LIMIT", "namespace_id": "1004", "simple": { "limit": 20, "period": 60 } },
+    { "name": "BOARD_LIMIT", "namespace_id": "1005", "simple": { "limit": 20, "period": 60 } }
+  ],
+  // Workers caching: the circuit GLBs from R2 are kept at the edge, tiered, with byte ranges served from the cache
+  "cache": { "enabled": true },
+  // Workers Logs: the Worker's errors and requests show up in the dashboard
+  "observability": { "enabled": true },
+  "routes": [{ "pattern": "librecorsa.org", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}

@@ -1,0 +1,173 @@
+"use client";
+
+import React, { useRef } from "react";
+import { Button, Card, Disclosure, SettingRow } from "@/components/ui";
+import { PadGlyph } from "@/components/ui/prompts";
+import { useInputMode } from "./input-mode";
+import { focusables, useMoveHandler } from "./useFocusNav";
+import type { CarDefinition } from "@/lib/cars/car-registry";
+import type { TrackInfo } from "@/lib/track-registry";
+import { aiDriversFor, aiRaceCodes } from "@/lib/sim/ai-opponents";
+import { AI_SKILL_DEFAULT, aiSkillLabel } from "@/lib/sim/ai-tuning";
+import { raceStartSuffix, type RaceSetup } from "@/lib/sim/race-setup";
+import { RaceRules, useRaceDistance } from "./RaceRules";
+
+export interface RaceSetupPanelProps {
+  setup: RaceSetup;
+  onChange: (patch: Partial<RaceSetup>) => void;
+  aiSkill?: number;
+  onChangeAiSkill?: (skill: number) => void;
+  track: TrackInfo;
+  /** Weather and time of day, as a line */
+  conditionsLabel?: string;
+  car: Pick<CarDefinition, "id" | "quality" | "title" | "badge"> & { color: string };
+  /** The player's driver code and colour on the grid (Settings > Display > Driver) */
+  playerCode?: string;
+  playerColor?: string;
+  onOpenCircuit: () => void;
+  onOpenConditions?: () => void;
+  /** Opens the car browser (named for the Event row it once sat behind) */
+  onOpenGarage: () => void;
+  onStart: () => void;
+}
+
+interface GridSlot {
+  code: string;
+  /** The team's own colour, the player's own (data); absent: the player's volt */
+  color?: string;
+  player?: boolean;
+}
+
+/**
+ * The grid as it will line up: AI by pace (qualifying shuffles it a little), under the codes they race with beside the
+ * player's (`aiRaceCodes`), and the player in the chosen slot
+ */
+function gridPreview(setup: RaceSetup, playerCode: string, playerColor: string | undefined): GridSlot[] {
+  const drivers = aiDriversFor(setup.opponents);
+  const codes = aiRaceCodes(drivers.map((d) => d.code), playerCode);
+  const ai: GridSlot[] = drivers
+    .map((d, i) => ({ code: codes[i], color: d.teamColorHex, pace: d.pace }))
+    .sort((a, b) => b.pace - a.pace)
+    .map(({ code, color }) => ({ code, color }));
+  if (setup.aiGrid === "reversed") ai.reverse();
+  const n = ai.length + 1;
+  const slot = setup.grid === "front" ? 0 : setup.grid === "middle" ? Math.floor((n - 1) / 2) : setup.grid === "random" ? -1 : n - 1;
+  const out = [...ai];
+  if (slot >= 0) out.splice(slot, 0, { code: playerCode, color: playerColor, player: true });
+  return out;
+}
+
+/** A summary row that opens another panel (circuit, conditions, car) */
+const LinkRow: React.FC<{ label: string; value: string; onClick?: () => void; navDefault?: boolean }> = ({
+  label,
+  value,
+  onClick,
+  navDefault,
+}) => (
+  <SettingRow label={label} hint={value}>
+    {onClick ? (
+      <Button size="sm" variant="secondary" onClick={onClick} data-nav-default={navDefault ? "" : undefined} aria-label={`Change ${label.toLowerCase()}: ${value}`}>
+        Change
+      </Button>
+    ) : null}
+  </SettingRow>
+);
+
+const GridList: React.FC<{ grid: GridSlot[]; drawn: boolean }> = ({ grid, drawn }) => (
+  <div className="flex flex-col gap-2 pb-1">
+    <ol className="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-1 p-0 sm:grid-cols-3">
+      {grid.map((g, i) => (
+        <li key={g.code} className={`flex items-center gap-2 rounded-lc-nub px-2 py-1 ${g.player ? "bg-lc-volt/10" : ""}`}>
+          <span className="lc-data w-[2.5ch] text-right text-[12px] text-lc-slate">{i + 1}</span>
+          <span
+            aria-hidden
+            className={`h-3 w-1 shrink-0 rounded-full ${g.player && !g.color ? "bg-lc-volt" : ""}`}
+            // ui-allow: hex-in-style a team's own colour is data, as is the player's
+            style={g.color ? { background: g.color } : undefined}
+          />
+          <span className={`lc-data text-[13px] ${g.player ? "text-lc-volt" : "text-lc-chalk"}`}>{g.code}</span>
+        </li>
+      ))}
+    </ol>
+    {drawn ? <p className="lc-hint m-0">Your slot is drawn at the start.</p> : null}
+  </div>
+);
+
+/** The race before the lights: the event, the rules (shared with pause), the grid it makes, and the start */
+export const RaceSetupPanel: React.FC<RaceSetupPanelProps> = ({
+  setup,
+  onChange,
+  aiSkill = AI_SKILL_DEFAULT,
+  onChangeAiSkill,
+  track,
+  conditionsLabel,
+  car,
+  playerCode = "YOU",
+  playerColor,
+  onOpenCircuit,
+  onOpenConditions,
+  onOpenGarage,
+  onStart,
+}) => {
+  const { mode, family } = useInputMode();
+  const grid = gridPreview(setup, playerCode, playerColor);
+  const fieldSize = grid.length + (setup.grid === "random" ? 1 : 0);
+  const distance = useRaceDistance(setup.laps, track.lengthM);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const startRef = useRef<HTMLButtonElement | null>(null);
+  // The start bar is pinned over the bottom of the setup, so it is never "below" the last rows on screen: down from
+  // the lowest row of the setup goes to Start race
+  useMoveHandler((dir) => {
+    const root = rootRef.current;
+    const start = startRef.current;
+    const active = document.activeElement as HTMLElement | null;
+    if (dir !== "down" || !root || !start || !active || !root.contains(active) || active === start) return false;
+    const a = active.getBoundingClientRect();
+    const below = focusables(root).some((el) => el !== start && el.getBoundingClientRect().top >= a.bottom - 2);
+    if (below) return false;
+    start.focus({ preventScroll: true });
+    return true;
+  });
+
+  return (
+    // Rows the cursor lands on scroll clear of the pinned start bar
+    <div ref={rootRef} className="flex flex-col gap-3 [&_button]:scroll-mb-28 [&_input]:scroll-mb-28">
+      <Card title="Event">
+        <LinkRow navDefault label="Circuit" value={track.layout ? `${track.name} · ${track.layout}` : track.name} onClick={onOpenCircuit} />
+        <LinkRow label="Conditions" value={conditionsLabel ?? "As set"} onClick={onOpenConditions} />
+        <LinkRow label="Car" value={`${car.title}, for the whole field`} onClick={onOpenGarage} />
+        {/* Qualifying sets the grid, so there is no order to preview. A random slot leaves the player out of the
+            preview, not out of the field */}
+        {setup.qualifying ? (
+          <LinkRow label="Grid" value={`Set by qualifying, ${fieldSize} cars`} />
+        ) : (
+          <Disclosure moreLabel={`Show the grid (${fieldSize} cars)`} lessLabel="Hide the grid">
+            <GridList grid={grid} drawn={setup.grid === "random"} />
+          </Disclosure>
+        )}
+      </Card>
+
+      <RaceRules context="title" setup={setup} onChange={onChange} aiSkill={aiSkill} onChangeAiSkill={onChangeAiSkill} trackLengthM={track.lengthM} />
+
+      {/* Pinned to the bottom of the screen while the setup scrolls under it: the start is never below the fold. The
+          scrim hides the rows passing behind and below the bar, so nothing shows in the gap under it */}
+      <div className="pointer-events-none sticky -bottom-5 z-10 -mt-3 rounded-b-lc-card bg-linear-to-t from-lc-carbon from-70% to-transparent pt-6 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div data-nav-pinned="" className="pointer-events-auto flex items-center justify-between gap-x-4 rounded-lc-card border border-lc-line bg-lc-carbon py-2.5 pr-2.5 pl-4.5 shadow-lc-pop phone:gap-x-3">
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="lc-row-label truncate">
+              {setup.laps} {setup.laps === 1 ? "lap" : "laps"}
+              {distance ? `, ${distance}` : ""}, {setup.opponents} AI {setup.opponents === 1 ? "car" : "cars"}
+            </span>
+            <span className="lc-hint truncate phone:hidden">
+              {aiSkillLabel(aiSkill)} AI{raceStartSuffix(setup.startMode, ", ")}
+              {setup.startMode !== "rolling" && setup.launch === "manual" ? ", manual launch" : ""}
+            </span>
+          </span>
+          <Button ref={startRef} variant="primary" size="lg" onClick={onStart} prompt={mode === "pad" ? <PadGlyph button="menu" family={family} /> : undefined}>
+            Start race
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};

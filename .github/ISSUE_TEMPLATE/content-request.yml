@@ -1,0 +1,66 @@
+# Opened (pre-filled) from the Feedback panel on the title menu (Car / Track): the field ids below are the
+# query parameters src/components/menu/RequestPanel.tsx fills in. GitHub only pre-fills text fields from the URL,
+# so the choices the panel offers as dropdowns are plain inputs here.
+name: Car or track request
+description: Ask for a car or circuit to be added to Noryx
+title: "[Request] "
+labels: ["content-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! Noryx can only ship models it is allowed to redistribute: an open license
+        (CC BY, CC BY-SA, CC0, or non-commercial CC BY-NC / CC BY-NC-SA) or written permission from the creator. Models ripped from other games
+        (Assetto Corsa, ACC, iRacing, F1 games…) can't be used unless the original creator agrees.
+
+        - **Sketchfab:** models tagged "Ripped" or "Assetto Corsa" (asseto-corsa, assetto-corsa…) aren't accepted.
+        - **OverTake mods:** ask the modder for permission first, and only request it once they've said yes.
+
+        **Please ask the creator for permission before you request a model, and link their answer.**
+  - type: input
+    id: kind
+    attributes:
+      label: Car or track?
+      placeholder: Track or Car
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: What would you like?
+      description: Name, plus the year or layout (e.g. "Spa-Francorchamps, 2022 layout" or "Porsche 911 GT3 R 2023").
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Model link
+      description: "Where the 3D model can be found (Sketchfab, a mod page, a scan…). Requests without a model can't be built. **Heads-up:** models from Sketchfab and similar 3D sites are usually low quality (lower FPS, no real kerbs, tarmac or run-off). A sim mod (e.g. Assetto Corsa) is far better, but only with its creator's permission: ask them first."
+    validations:
+      required: true
+  - type: input
+    id: modders
+    attributes:
+      label: Asked the modders?
+      description: "Sketchfab links: did you ask the modders who made it for other sim racing games (Assetto Corsa, rFactor 2, AMS2…) for permission, and did they say no? OverTake mods: did the modder say yes?"
+  - type: input
+    id: creator
+    attributes:
+      label: Creator / modder
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: "For example CC BY / CC BY-SA, CC0 / public domain, CC BY-NC / CC BY-NC-SA, another license, or don't know."
+  - type: input
+    id: permission
+    attributes:
+      label: Permission to use it
+      description: "The license allows it, or the creator gave written permission (link it below). Without either it can't be added."
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: Why it would be fun, links to the creator's permission, reference photos…
