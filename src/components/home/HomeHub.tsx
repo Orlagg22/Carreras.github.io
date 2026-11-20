@@ -592,18 +592,6 @@ export const HomeHub: React.FC<{ data: HomeData }> = ({ data }) => {
                       </div>
                     ))}
                   </dl>
-                  <section aria-labelledby="add-your-mod" className="flex flex-col gap-4 pt-2">
-                    <h2 id="add-your-mod" className="lc-h2">
-                      Add your mod
-                    </h2>
-                    <p className="lc-body m-0 max-w-[60ch] text-[16px] leading-[1.6]">
-                      Made a car or track mod and want to see it in Noryx? Email me at{" "}
-                      <a href={`mailto:${data.contactEmail}`} translate="no" className={TEXT_LINK}>
-                        {data.contactEmail}
-                      </a>{" "}
-                      with a link to it. Every modder gets credited by name in the game.
-                    </p>
-                  </section>
                   {/* Who made the circuits and cars, those who take donations first, each with their link */}
                   {data.modders.length ? (
                     <section aria-labelledby="the-modders" className="flex flex-col gap-4 pt-2">
