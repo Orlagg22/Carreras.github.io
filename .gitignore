@@ -67,8 +67,7 @@ UI-RESEARCH-*.md
 /public/cars/*
 !/public/cars/f12026/
 /public/gt3/
-# The soundtrack (src/lib/audio/music-catalog.ts): hosted like the circuits, never committed
-/public/music/
+# The soundtrack (src/lib/audio/music-catalog.ts) IS committed in Noryx: GitHub Pages serves it from public/music
 
 # F1 2026 local reference datasets & headless Blender audit outputs
 /reference_data/
