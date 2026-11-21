@@ -38,6 +38,8 @@ const OVER_WHEEL: Readonly<Record<CarId, OverWheelView>> = {
   "chaparral-2d-67": { fromEye: [0, -0.04, 0.58], pitchDeg: -4, fovDeg: 58 },
   // Its wheel hub 0.55 m ahead of the eye, the gauges just beyond
   "porsche-934-rsr": { fromEye: [0, -0.03, 0.62], pitchDeg: -4, fovDeg: 58 },
+  // Its wheel 0.55 m ahead of the eye, under the low-poly windscreen
+  "classic-coupe": { fromEye: [0, -0.02, 0.55], pitchDeg: -5, fovDeg: 58 },
 };
 
 /** A car not in the table: a little ahead of and below the eye */

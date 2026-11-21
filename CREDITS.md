@@ -33,6 +33,7 @@ LibreCorsa is an independent, non-commercial, open-source web simulator built wi
   | 2026 Pirelli tyre sidewall texture (`public/cars/shared/tyres/pirelli-2026-sidewall-cx.webp`) and F1 rain-tyre temperature / wear curves | By **Cxjovich** ([https://www.overtake.gg/members/cxjovich.4261212/](https://www.overtake.gg/members/cxjovich.4261212/)), CC BY-NC-SA 4.0 (used with permission; non-commercial, share-alike) |
   | Mercedes-AMG GT3 Evo and BMW M4 GT3 Evo models | CC BY-NC-SA 4.0 (non-commercial, share-alike) |
   | LC-LMDH model (`public/cars/lc-lmdh/model/`) | By **kilianhoffmann13**, CC BY 4.0 |
+  | Low-Poly Classic Coupé model (`public/cars/classic-coupe/`) | "car" by **Lodgelus**, CC BY 4.0 |
   | Car sounds ported from Assetto Corsa mods | The mod authors' terms; used non-commercially (see *Car sounds*) |
   | Suzuki Liana model (`public/cars/liana/model/`) | Forza Motorsport 4's (Turn 10 Studios / Microsoft) via a 2015 Assetto Corsa conversion; **not licensed for redistribution** (see *Suzuki Liana*) |
   | Suzuki Liana sounds (`public/cars/liana/audio/`) | The 2015 conversion's sound bank, built from Assetto Corsa (Kunos Simulazioni) samples; **not licensed for redistribution** |
@@ -93,6 +94,10 @@ LibreCorsa is an independent, non-commercial, open-source web simulator built wi
 * **Creators**, as the mod credits them: 3D model by **Nugget** and **NPanic**, LoDs by **Dodge33**, skins by **Pasta**, physics by **Bazza** ([https://thracing.de/wsc-legends-60s-pack](https://thracing.de/wsc-legends-60s-pack)), CSP config by **Valentin K** ([https://www.overtake.gg/members/valentink.1097526/](https://www.overtake.gg/members/valentink.1097526/)), SFX by **Felix789** ([https://www.overtake.gg/members/fff789.825278](https://www.overtake.gg/members/fff789.825278)).
 * **Physics**: each car's engine, gearing, torque converter (the data's held-on auto clutch), differential, suspension, tyre, aero, brake and electronics data are mapped onto LibreCorsa's rigid-body vehicle model in `src/lib/sim/classic/Chaparral2dConfig.ts`; each value carries a `[spec]` tag there. The setup's two aero kits (the 1966 spoiler and gurney extension, the 1967 Sebring spoiler and canards) are the garage's high-downforce package. Checked by `scripts/verify-chaparral-2d.ts`.
 * **3D models**: changes for the simulator (`scripts/cars/port_ac_car.py`): the KN5 meshes converted to glTF 2.0 on the ported-car rig (`WHEEL_*` hubs with rim, brake disc and tyre, `STEER` pivot), materials converted from their shader settings, the Nürburgring (1966) and Daytona (1967) skins baked into the paint, textures downscaled and re-encoded. The mod's eight skins are the cars' liveries (`public/cars/<id>/skins/`): their paint, number plates and gauge labels; the 1966 Sebring and Daytona cars wear the mod's Sebring scoop, fixed lamp covers and no roof mirror, and the 1967 Sebring car its spoiler and canards, as nodes of their own the livery shows.
+
+### Low-Poly Classic Coupé (`public/cars/classic-coupe/`)
+
+"car" (https://skfb.ly/6TYPo) by Lodgelus is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). Changes: re-oriented and scaled to metres, split into body, wheels, rims and tyres for the car rig, and its materials simplified (no clearcoat or transmission). It drives on the 2026 Prototype's physics. Its engine sounds (`public/cars/classic-coupe/audio/engine_*`) are original, synthesized for this car; its gearbox, turbo, skid and one-shot samples are the F1 2026 bank's, copied unchanged.
 
 ### 2025 Pirelli tyres of the 2026 car (`public/cars/shared/tyres/pirelli-2025-ps-*.webp`)
 

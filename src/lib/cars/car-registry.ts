@@ -36,7 +36,8 @@ export type CarId =
   | "vw-scirocco-gtx"
   | "chaparral-2d"
   | "chaparral-2d-67"
-  | "porsche-934-rsr";
+  | "porsche-934-rsr"
+  | "classic-coupe";
 
 /**
  * The kinds of car, one menu category each; a car's year groups it within its class. Class ids live only in code
@@ -275,6 +276,9 @@ export const CAR_CLASSES: readonly CarClass[] = [
   { id: "road", title: "Road cars", sub: "Road-legal · street tyres", color: "#FF8A3D" },
 ];
 
+/** The coupé's own engine bank (`public/cars/classic-coupe/audio/`): a V8-style sound synthesized for it, on the 2026 Prototype's rpm range */
+const CLASSIC_COUPE_SOUND: CarSoundSource = { id: "classic-coupe", assetDir: "/cars/classic-coupe/audio/", limiterRpm: 12500 };
+
 /** Every car the game knows, whether or not this copy has its files (`hosted-content.ts`) */
 const ALL_CARS: readonly CarDefinition[] = [
   {
@@ -495,6 +499,25 @@ const ALL_CARS: readonly CarDefinition[] = [
     skins: PORSCHE_934_RSR_SKINS,
     sound: PORSCHE_934_RSR_SOUND,
   },
+  {
+    id: "classic-coupe",
+    classId: "classic",
+    title: "Low-Poly Classic Coupé",
+    sub: "1985 · low-poly GT coupé · drives on 2026 Prototype physics",
+    badge: "COUPÉ",
+    quality: "era",
+    credit: {
+      title: "car",
+      author: "Lodgelus",
+      url: "https://skfb.ly/6TYPo",
+      note: "Re-oriented and scaled to metres, split into body, wheels and tyres, materials simplified.",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 1985,
+    modelUrl: "/cars/classic-coupe/model/classic-coupe.glb",
+    sound: CLASSIC_COUPE_SOUND,
+  },
 ];
 
 /** The cars this copy can drive: all of them on librecorsa.org, the 2026 prototype in a clone of the repository */
@@ -564,7 +587,7 @@ export const carTakesLivery = (id: CarId): boolean => !carById(id).modelUrl;
  * prototype's body, whose one picture is in the repository. A copy without the file shows the card without a picture.
  */
 export const carThumbUrl = (id: CarId): string => {
-  if (REPO_CAR_IDS.has(id)) return "/lc26/thumb.webp";
+  if (REPO_CAR_IDS.has(id) && !carById(id).modelUrl) return "/lc26/thumb.webp";
   // Beside the car's model, so a car that took over another's body shows that body's picture
   const modelDir = carById(id).modelUrl?.match(/^(\/cars\/[^/]+)\/model\//)?.[1];
   return `${modelDir ?? `/cars/${id}`}/thumb.webp`;
