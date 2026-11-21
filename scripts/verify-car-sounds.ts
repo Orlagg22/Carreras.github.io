@@ -52,6 +52,9 @@ const EXPECTED_SOUNDS: Record<CarId, { sound: CarSoundSource; maxIdleRpm: number
   "chaparral-2d": { sound: CHAPARRAL_2D_SOUND, maxIdleRpm: 1400 },
   "chaparral-2d-67": { sound: CHAPARRAL_2D_67_SOUND, maxIdleRpm: 1400 },
   "porsche-934-rsr": { sound: PORSCHE_934_RSR_SOUND, maxIdleRpm: 1400 },
+  // The coupe's own synthesised bank on the 2026 Prototype's rpm range (its physics is lc26's): its sound constant lives
+  // in the car registry, so the registry's own object is the one checked against the bank on disk
+  "classic-coupe": { sound: carById("classic-coupe").sound, maxIdleRpm: 4200 },
 };
 
 const MAX_BANK_BYTES = Math.round(3.4 * 1024 * 1024);
