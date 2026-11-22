@@ -6,6 +6,7 @@ its own `STEER` node (column along its local +Z, tilted 24 degrees; the game tur
 cockpit and dash cameras inside the cabin.
 
   python3 scripts/cars/add_cartoon_interior.py IN.glb OUT.glb
+  python3 scripts/cars/remove_cartoon_lid.py OUT.glb FINAL.glb   # then: removes the source's opaque sheet over the cabin
 """
 import sys
 import json,struct,math
@@ -165,8 +166,8 @@ a=math.radians(24); q=[math.sin(a/2),0,0,math.cos(a/2)]
 J['nodes'].append(dict(name='STEER',mesh=len(J['meshes'])-1,translation=[0.38,0.93,0.50],rotation=q))
 car=[n for n in J['nodes'] if n['name']=='CAR'][0]; car['children'].append(len(J['nodes'])-1)
 cam=car['extras']['cameras']
-cam['cockpit']=dict(pos=[0.38,1.15,-0.05],pitchDeg=-3,fov=60)
-cam['dash']=dict(pos=[0.38,1.22,0.95],pitchDeg=-4,fov=58)
+cam['cockpit']=dict(pos=[0.38,1.22,-0.05],pitchDeg=-3,fov=60)
+cam['dash']=dict(pos=[0.38,1.27,0.85],pitchDeg=-2,fov=58)
 car['extras']['source']['changes']+='; interior added (seats, dashboard, instrument hood, steering wheel, console, door cards, headliner)'
 J['buffers'][0]['byteLength']=len(BIN)
 js=json.dumps(J,separators=(',',':')).encode()

@@ -40,8 +40,9 @@ const OVER_WHEEL: Readonly<Record<CarId, OverWheelView>> = {
   "porsche-934-rsr": { fromEye: [0, -0.03, 0.62], pitchDeg: -4, fovDeg: 58 },
   // Its wheel 0.55 m ahead of the eye, under the low-poly windscreen
   "classic-coupe": { fromEye: [0, -0.02, 0.55], pitchDeg: -5, fovDeg: 58 },
-  // Past its steering wheel (0.55 m ahead of the eye), over the instrument hood and 14 cm under the windscreen
-  "cartoon-sports-car": { fromEye: [0, 0.07, 1.0], pitchDeg: -4, fovDeg: 58 },
+  // Past its steering wheel (0.55 m ahead of the eye), over the instrument hood and under the windscreen's base, with the
+  // road in view over the bonnet (the GLB's opaque cabin sheet is gone: scripts/cars/remove_cartoon_lid.py)
+  "cartoon-sports-car": { fromEye: [0, 0.05, 0.9], pitchDeg: -2, fovDeg: 58 },
 };
 
 /** A car not in the table: a little ahead of and below the eye */
