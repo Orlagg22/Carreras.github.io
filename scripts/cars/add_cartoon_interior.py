@@ -6,7 +6,8 @@ its own `STEER` node (column along its local +Z, tilted 24 degrees; the game tur
 cockpit and dash cameras inside the cabin.
 
   python3 scripts/cars/add_cartoon_interior.py IN.glb OUT.glb
-  python3 scripts/cars/remove_cartoon_lid.py OUT.glb FINAL.glb   # then: removes the source's opaque sheet over the cabin
+  python3 scripts/cars/remove_cartoon_lid.py OUT.glb STEP2.glb   # then: removes the source's opaque sheet over the cabin
+  python3 scripts/cars/rebuild_cartoon_interior.py STEP2.glb FINAL.glb   # then: replaces this interior with the detailed one
 """
 import sys
 import json,struct,math

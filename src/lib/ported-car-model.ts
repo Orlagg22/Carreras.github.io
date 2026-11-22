@@ -17,6 +17,7 @@ import {
 } from "@/lib/render/corner-rig";
 import { singlePassTransparency } from "@/lib/render/static-scene";
 import { bodyFloorClearance, type StaticFloor } from "@/lib/render/body-floor";
+import { createDriverArms, type DriverArms, type PortedDriverSpec } from "@/lib/render/driver-arms";
 
 /**
  * Cars ported to one GLB each (a registry car's `modelUrl`), on any vehicle model. Node layout:
@@ -67,6 +68,8 @@ interface PortedExtras {
   cameras?: Partial<Record<string, { pos: [number, number, number]; pitchDeg: number; fov: number }>>;
   /** The wheel's shift lights (ported-wheel-dash.ts), handed on to the `STEER` node */
   revLeds?: unknown;
+  /** The game's driver hands and forearms on the wheel (`driver-arms.ts`); absent: the model has no driver arms of its own to move */
+  driver?: PortedDriverSpec;
   /** GLB material name -> the file of a livery that replaces its colour texture */
   skinMaps?: Record<string, string>;
   /** PART_ node -> the livery variants that show it (`CarSkin.variant`, "base" for a livery that names none) */
@@ -281,6 +284,7 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
 
   const corners: RigCorner[] = [];
   let steerPivot: THREE.Object3D | null = null;
+  let driverArms: DriverArms | null = null;
   const steerRest = new THREE.Quaternion();
   let disposed = false;
   // The compound the sidewalls show; the tyres are built when the model loads
@@ -382,6 +386,8 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
       steerPivot = steerNode;
       steerRest.copy(steerNode.quaternion);
       if (extras.revLeds) steerNode.userData.revLeds = extras.revLeds;
+      // The game's driver: gloved hands on the wheel, forearms from the elbows to the wrists
+      if (extras.driver) driverArms = createDriverArms(extras.driver, steerNode, bodyGroup);
     }
     for (const [name, variants] of Object.entries(extras.partVariants ?? {})) {
       const node = find(name);
@@ -448,6 +454,7 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
       // About the column (local +Z): a positive angle takes the top of the rim to -X, i.e. right
       steerPivot.quaternion.copy(steerRest);
       steerPivot.rotateZ(t.steering * steerLockRad);
+      driverArms?.update();
     }
     updateCorners(corners, roadWheel, wheelRotationRad, wheels);
   };
@@ -473,6 +480,7 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
     updateFromTelemetry,
     dispose: () => {
       disposed = true;
+      driverArms?.dispose();
       for (const c of corners) c.tyre?.dispose();
       for (const slot of skinSlots) slot.mat.dispose();
       root.removeFromParent();
