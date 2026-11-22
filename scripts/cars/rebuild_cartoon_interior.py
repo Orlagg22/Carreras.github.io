@@ -66,6 +66,9 @@ def rot_to(ax):
     return np.eye(3) + vx + vx @ vx * (1 / (1 + c))
 
 
+YSHIFT = 0.0  # added to the height of everything built while it is non-zero (the raised seats)
+
+
 class Mesh:
     def __init__(self, textured=False, autouv=None):
         self.P, self.N, self.I, self.UV = [], [], [], []
@@ -74,7 +77,7 @@ class Mesh:
 
     def add(self, p, n, i, uv=None):
         o = sum(len(x) for x in self.P)
-        self.P.append(np.asarray(p, float))
+        self.P.append(np.asarray(p, float) + np.array([0.0, YSHIFT, 0.0]))
         self.N.append(np.asarray(n, float))
         self.I.append(np.asarray(i, np.uint32) + o)
         if self.textured:
@@ -585,9 +588,12 @@ for sx in (1, -1):
     Rp = rot_to(ax / np.linalg.norm(ax))
     G["int_dash_low"].rbox(mid + [-sx * 0.025, 0, 0], (0.055, 0.05, np.linalg.norm(ax)), 0.015, Rp)
 
+# ---- engine bay behind the bonnet's headlight lenses (black, so the lenses read as lamps, not as holes onto the road)
+G["int_black"].rbox((0, 0.72, 1.71), (1.92, 0.02, 0.58), 0.005)
+
 # ---- dashboard: leather pad curving down to the cowl, alcantara fascia under a red seam
-G["int_dash_top"].prism([(0.655, 0.86), (0.655, 0.97), (0.70, 1.012), (0.78, 1.036), (0.95, 1.042), (1.10, 1.03), (1.22, 1.0), (1.22, 0.86)], -0.97, 0.97)
-G["int_dash_low"].prism([(0.70, 0.60), (1.22, 0.55), (1.22, 0.86), (0.672, 0.86), (0.672, 0.70)], -0.97, 0.97)
+G["int_dash_top"].prism([(0.655, 0.86), (0.655, 0.97), (0.70, 1.012), (0.78, 1.036), (0.95, 1.042), (1.10, 1.03), (1.20, 1.07), (1.29, 1.16), (1.29, 0.86)], -0.97, 0.97)
+G["int_dash_low"].prism([(0.70, 0.60), (1.29, 0.55), (1.29, 0.86), (0.672, 0.86), (0.672, 0.70)], -0.97, 0.97)
 G["int_red"].box((0, 0.862, 0.66), (1.90, 0.008, 0.014))                                     # piping on the seam
 G["int_red"].stitches((-0.90, 0.925, 0.6535), (0.90, 0.925, 0.6535), 100, (0.011, 0.0035, 0.0025))
 G["int_red"].stitches((-0.90, 0.99, 0.69), (0.90, 1.002, 0.76), 100, (0.011, 0.0025, 0.0035))
@@ -597,7 +603,7 @@ for sx in (-1, 1):
     G["int_dash_top"].rbox((DRIVER_X + sx * 0.335, 1.105, 0.86), (0.028, 0.22, 0.32), 0.012)
 G["int_dash_top"].rbox((DRIVER_X, 1.006, 0.86), (0.70, 0.03, 0.32), 0.012)
 G["int_black"].rbox((DRIVER_X, 1.105, 0.985), (0.66, 0.22, 0.03), 0.01)
-G["int_cluster"].quad_z(DRIVER_X - 0.30, DRIVER_X + 0.30, 1.00, 1.15, 0.74)
+G["int_cluster"].quad_z(DRIVER_X - 0.30, DRIVER_X + 0.30, 1.035, 1.185, 0.74)
 # the centre stack: a rounded housing turned a little towards the driver, the screen on its face, knobs below it
 yaw = roty(math.radians(-9))  # +X is the car's left, where the driver is: turn the face towards him
 HC = np.array([0.0, 0.935, 0.675])
@@ -639,6 +645,8 @@ G["int_red"].cyl((0.075, 0.735, 0.58), (0.075, 0.75, 0.58), 0.015, 18)          
 G["int_dash_top"].rbox((0, 0.80, -0.55), (0.20, 0.06, 0.30), 0.03)                           # armrest lid
 
 # ---- seats: bucket cushions and backs with raised bolsters, a red centre insert, an integrated headrest, belts
+# (8 cm up: the cartoon bonnet's crest is level with a low eye, which hid the whole road)
+YSHIFT = 0.08
 tilt = rotx(-0.21)
 for sx in (DRIVER_X, -DRIVER_X):
     G["int_seat"].rbox((sx, 0.46, -0.10), (0.54, 0.13, 0.64), 0.05)                          # cushion
@@ -650,6 +658,7 @@ for sx in (DRIVER_X, -DRIVER_X):
     G["int_red"].rbox((sx, 0.84, -0.336), (0.20, 0.42, 0.012), 0.004, tilt)                  # insert
     G["int_seat"].rbox((sx, 1.30, -0.47), (0.31, 0.27, 0.115), 0.05, tilt)                   # headrest
     G["int_dash_top"].rbox((sx, 0.40, -0.10), (0.16, 0.30, 0.52), 0.03)                      # rail cover
+YSHIFT = 0.0
 # belts: from the shoulder, across the chest, to the buckle by the tunnel
 for sx, anchor in ((DRIVER_X, (0.80, 1.34, -0.50)), (-DRIVER_X, (-0.80, 1.34, -0.50))):
     a = np.array(anchor, float)
@@ -684,8 +693,13 @@ SW["int_trim"].cyl((0, 0, -0.026), (0, 0, 0.03), 0.058, 32)                     
 SW["int_badge"].disc((0, 0, -0.0275), (0, 0, -1), 0.05, 32, uv_axes=((-1, 0, 0), (0, 1, 0)))
 SW["int_red"].box((0, 0.160, 0), (0.016, 0.030, 0.046))                                      # 12 o'clock marker
 SW["int_red"].stitches((-0.07, 0.1535, 0.0), (0.07, 0.1535, 0.0), 12, (0.007, 0.002, 0.044))
-for sx in (1, -1):                                                                           # paddle shifters behind the rim
-    SW["int_metal"].rbox((sx * 0.155, 0.02, -0.055), (0.012, 0.09, 0.032), 0.005, rotx(0.0))
+def rotz(a):
+    c, s_ = math.cos(a), math.sin(a)
+    return np.array([[c, -s_, 0], [s_, c, 0], [0, 0, 1.0]])
+
+
+for sx in (1, -1):                                                                           # paddle shifters behind the rim, at 10 and 2 o'clock
+    SW["int_metal"].rbox((sx * 0.095, 0.105, -0.058), (0.012, 0.075, 0.030), 0.005, rotz(sx * math.radians(47.8)))
 SW["int_trim"].cyl((0, 0, 0.03), (0, 0, 0.34), 0.028, 14)                                      # column
 
 # ------------------------------------------------------------------------------------------------- write
@@ -701,16 +715,16 @@ car["extras"]["driver"] = {
     "gripY": 0.0,
     "rimTube": 0.021,
     "handScale": 1.0,
-    "elbows": {"left": [DRIVER_X + 0.20, 0.79, 0.16], "right": [DRIVER_X - 0.20, 0.79, 0.16]},
+    "elbows": {"left": [DRIVER_X + 0.20, 0.87, 0.16], "right": [DRIVER_X - 0.20, 0.87, 0.16]},
     "skin": "#d4a37e",
     "sleeve": "#1f2937",
     "cuff": "#e5e7eb",
     # torso against the seat's backrest, helmet just behind the eye point (the driver's-eye view leaves them out)
-    "body": {"torso": [DRIVER_X, 0.84, -0.22], "head": [DRIVER_X, 1.21, -0.17], "suit": "#1f2937", "helmet": "#dc2626"},
+    "body": {"torso": [DRIVER_X, 0.92, -0.22], "head": [DRIVER_X, 1.37, -0.17], "suit": "#1f2937", "helmet": "#dc2626"},
 }
 cams = car["extras"]["cameras"]
-cams["cockpit"] = {"pos": [DRIVER_X, 1.22, -0.05], "pitchDeg": -6, "fov": 60}
-cams["dash"] = {"pos": [DRIVER_X, 1.22, 0.14], "pitchDeg": -11, "fov": 58}
+cams["cockpit"] = {"pos": [DRIVER_X, 1.38, -0.05], "pitchDeg": -9, "fov": 60}
+cams["dash"] = {"pos": [DRIVER_X, 1.36, 0.14], "pitchDeg": -12, "fov": 58}
 src = car["extras"]["source"]
 if "interior rebuilt" not in src["changes"]:
     src["changes"] += "; interior rebuilt (textured cluster, screen and badge, two-tone dashboard, door cards, seats, steering wheel)"
