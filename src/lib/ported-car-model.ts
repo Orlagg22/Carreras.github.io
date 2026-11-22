@@ -18,6 +18,7 @@ import {
 import { singlePassTransparency } from "@/lib/render/static-scene";
 import { bodyFloorClearance, type StaticFloor } from "@/lib/render/body-floor";
 import { createDriverArms, type DriverArms, type PortedDriverSpec } from "@/lib/render/driver-arms";
+import { CartoonDash, type CartoonDashSpec } from "@/lib/render/cartoon-dash";
 
 /**
  * Cars ported to one GLB each (a registry car's `modelUrl`), on any vehicle model. Node layout:
@@ -51,6 +52,11 @@ export interface PortedCarOptions {
    * the textures of the materials the GLB's `skinMaps` extras name
    */
   skin?: PortedSkin | null;
+  /**
+   * The scales of a model with the cartoon car's live cluster and map screen (`int_cluster` / `int_screen`,
+   * cartoon-dash.ts): the speedometer's and rev counter's last numbers and the red zone. Defaults suit a road car.
+   */
+  dash?: CartoonDashSpec;
 }
 
 /** A ported model's driver and nose in rig space, once loaded */
@@ -131,11 +137,20 @@ export function loadTemplate(url: string): Promise<THREE.Group | null> {
       assetProgress.begin("car");
       try {
         const scene = (await createGltfLoader().loadAsync(full, (event) => assetProgress.progress("car", event))).scene;
+        // The cartoon car (its cabin has the live cluster): the sun's shadow map drew grey / black noise on its bodywork
+        // and dash that crawled as the car moved (the shadow camera follows the car, so its texels shift), so its own
+        // surfaces do not take shadows (the cabin casts none either); the road still gets the car's shadow
+        let cartoon = false;
+        scene.traverse((obj) => {
+          const m = (obj as THREE.Mesh).material as THREE.Material | undefined;
+          if (m && !Array.isArray(m) && m.name === "int_cluster") cartoon = true;
+        });
         scene.traverse((obj) => {
           const mesh = obj as THREE.Mesh;
           if (!mesh.isMesh) return;
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
+          const matName = Array.isArray(mesh.material) ? "" : mesh.material.name;
+          mesh.castShadow = !(cartoon && matName.startsWith("int_"));
+          mesh.receiveShadow = !cartoon;
           mesh.material = Array.isArray(mesh.material)
             ? mesh.material.map(cleanPortedCarMaterial)
             : cleanPortedCarMaterial(mesh.material);
@@ -285,6 +300,7 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
   const corners: RigCorner[] = [];
   let steerPivot: THREE.Object3D | null = null;
   let driverArms: DriverArms | null = null;
+  let cartoonDash: CartoonDash | null = null;
   const steerRest = new THREE.Quaternion();
   let disposed = false;
   // The compound the sidewalls show; the tyres are built when the model loads
@@ -420,6 +436,8 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
     placeholder.geometry.dispose();
     (placeholder.material as THREE.Material).dispose();
     chassisGroup.add(bodyGroup);
+    // Live needles and the circuit map, on the models whose cabin has them
+    cartoonDash = CartoonDash.from(root, bodyGroup, options.dash);
 
     const cams = extras.cameras ?? {};
     const anchors = {} as Lc26ModelInstance["cameraAnchors"];
@@ -457,6 +475,7 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
       driverArms?.update();
     }
     updateCorners(corners, roadWheel, wheelRotationRad, wheels);
+    cartoonDash?.update(t, performance.now());
   };
 
   return {
@@ -481,6 +500,7 @@ export function createPortedCarRig(options: PortedCarOptions): SimCarRig {
     dispose: () => {
       disposed = true;
       driverArms?.dispose();
+      cartoonDash?.dispose();
       for (const c of corners) c.tyre?.dispose();
       for (const slot of skinSlots) slot.mat.dispose();
       root.removeFromParent();

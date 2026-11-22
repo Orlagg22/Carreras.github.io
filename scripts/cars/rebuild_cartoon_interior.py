@@ -344,7 +344,7 @@ G = {k: Mesh(textured=k in ("int_cluster", "int_screen", "int_badge")) for k in 
 # ------------------------------------------------------------------------------------------------- the cabin (rig space)
 # shell: floor, headliner, parcel shelf, door cards
 G["int_floor"].box((0, 0.38, -0.10), (1.90, 0.04, 2.30))
-G["int_liner"].box((0, 1.62, -0.35), (1.90, 0.03, 1.30))
+# (no headliner: it showed as a grey square on the roof through the glass, seen from outside)
 G["int_trim"].box((0, 0.72, -1.10), (1.90, 0.68, 0.04))
 G["int_trim"].box((0, 1.02, -1.00), (1.90, 0.06, 0.30))
 for sx in (1, -1):
@@ -360,9 +360,6 @@ for sx in (1, -1):
     mid, ax = (a + b) / 2, b - a
     R = rot_to(ax / np.linalg.norm(ax))
     G["int_trim"].box(mid + [-sx * 0.025, 0, 0], (0.055, 0.05, np.linalg.norm(ax)), R)
-# sun visors
-for sx in (DRIVER_X, -DRIVER_X):
-    G["int_liner"].box((sx, 1.585, 0.20), (0.42, 0.012, 0.20))
 
 # dashboard: pad sloping to the glass, a lower grey fascia, the binnacle, vents, centre screen
 G["int_dash_low"].box((0, 0.78, 0.94), (1.96, 0.16, 0.56))                   # lower fascia (to y 0.86)
@@ -396,12 +393,7 @@ for sx in (DRIVER_X, -DRIVER_X):
         G["int_seat"].box((sx + ox, 0.74, -0.34), (0.08, 0.50, 0.15), tilt)   # bolsters
     G["int_seat"].box((sx, 1.28, -0.46), (0.30, 0.22, 0.10), tilt)            # headrest
     G["int_trim"].box((sx, 0.40, -0.10), (0.14, 0.30, 0.50))
-# interior mirror under the glass
-Rm = roty(-0.18) @ rotx(-0.12)
-G["int_trim"].box((0, 1.31, 0.80), (0.27, 0.078, 0.04), Rm)
-G["int_mirror"].box(np.array([0, 1.31, 0.80]) + Rm @ np.array([0, 0, -0.0215]), (0.245, 0.056, 0.004), Rm)
-G["int_trim"].cyl((0, 1.42, 0.84), (0, 1.34, 0.80), 0.011, 10)
-G["int_trim"].box((0, 1.42, 0.855), (0.05, 0.03, 0.016))
+# (no interior mirror: removed on request)
 
 # ------------------------------------------------------------------------------------------------- steering wheel + hands
 SW = {k: Mesh(textured=(k == "int_badge")) for k in ("int_wheel", "int_metal", "int_red", "int_trim", "int_badge")}
