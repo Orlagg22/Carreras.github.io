@@ -67,6 +67,7 @@ UI-RESEARCH-*.md
 /public/cars/*
 !/public/cars/f12026/
 !/public/cars/classic-coupe/
+!/public/cars/cartoon-sports-car/
 /public/gt3/
 # The soundtrack (public/music) is committed: it is original and small (about 23 MB), and Pages serves it from the repo
 

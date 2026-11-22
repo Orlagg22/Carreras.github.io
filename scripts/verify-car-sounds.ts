@@ -55,6 +55,8 @@ const EXPECTED_SOUNDS: Record<CarId, { sound: CarSoundSource; maxIdleRpm: number
   // The coupe's own synthesised bank on the 2026 Prototype's rpm range (its physics is lc26's): its sound constant lives
   // in the car registry, so the registry's own object is the one checked against the bank on disk
   "classic-coupe": { sound: carById("classic-coupe").sound, maxIdleRpm: 4200 },
+  // Shares the coupe's bank
+  "cartoon-sports-car": { sound: carById("cartoon-sports-car").sound, maxIdleRpm: 4200 },
 };
 
 const MAX_BANK_BYTES = Math.round(3.4 * 1024 * 1024);

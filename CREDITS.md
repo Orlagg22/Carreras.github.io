@@ -34,6 +34,7 @@ LibreCorsa is an independent, non-commercial, open-source web simulator built wi
   | Mercedes-AMG GT3 Evo and BMW M4 GT3 Evo models | CC BY-NC-SA 4.0 (non-commercial, share-alike) |
   | LC-LMDH model (`public/cars/lc-lmdh/model/`) | By **kilianhoffmann13**, CC BY 4.0 |
   | Low-Poly Classic Coupé model (`public/cars/classic-coupe/`) | "car" by **Lodgelus**, CC BY 4.0 |
+  | Modern Cartoon Sports Car model (`public/cars/cartoon-sports-car/`) | "Modern Cartoon Sports Car" by **RCC Design**, CC BY 4.0 |
   | Car sounds ported from Assetto Corsa mods | The mod authors' terms; used non-commercially (see *Car sounds*) |
   | Suzuki Liana model (`public/cars/liana/model/`) | Forza Motorsport 4's (Turn 10 Studios / Microsoft) via a 2015 Assetto Corsa conversion; **not licensed for redistribution** (see *Suzuki Liana*) |
   | Suzuki Liana sounds (`public/cars/liana/audio/`) | The 2015 conversion's sound bank, built from Assetto Corsa (Kunos Simulazioni) samples; **not licensed for redistribution** |
@@ -98,6 +99,10 @@ LibreCorsa is an independent, non-commercial, open-source web simulator built wi
 ### Low-Poly Classic Coupé (`public/cars/classic-coupe/`)
 
 "car" (https://skfb.ly/6TYPo) by Lodgelus is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). Changes: re-oriented and scaled to metres, split into body, wheels, rims and tyres for the car rig, and its materials simplified (no clearcoat or transmission). It drives on the 2026 Prototype's physics. Its engine sounds (`public/cars/classic-coupe/audio/engine_*`) are original, synthesized for this car; its gearbox, turbo, skid and one-shot samples are the F1 2026 bank's, copied unchanged.
+
+### Modern Cartoon Sports Car (`public/cars/cartoon-sports-car/`)
+
+"Modern Cartoon Sports Car" (https://skfb.ly/oPytt) by RCC Design is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). Changes (`scripts/cars/port_cartoon_sports_car.py`, then `scripts/cars/add_cartoon_interior.py` for the cabin: seats, dashboard, steering wheel, tunnel, door cards and headliner, all original): rebuilt on the car rig (body, wheels, rims and tyres, with the brake discs turning with the rims), the fake shadow plane and the brake calipers left out, the clearcoat and specular extensions dropped (the paint is a plain glossy one), and the 4096 px textures downscaled and re-encoded as JPEG. It drives on the 2026 Prototype's physics and shares the Low-Poly Classic Coupé's engine sounds.
 
 ### 2025 Pirelli tyres of the 2026 car (`public/cars/shared/tyres/pirelli-2025-ps-*.webp`)
 

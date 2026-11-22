@@ -37,7 +37,8 @@ export type CarId =
   | "chaparral-2d"
   | "chaparral-2d-67"
   | "porsche-934-rsr"
-  | "classic-coupe";
+  | "classic-coupe"
+  | "cartoon-sports-car";
 
 /**
  * The kinds of car, one menu category each; a car's year groups it within its class. Class ids live only in code
@@ -276,7 +277,7 @@ export const CAR_CLASSES: readonly CarClass[] = [
   { id: "road", title: "Road cars", sub: "Road-legal · street tyres", color: "#FF8A3D" },
 ];
 
-/** The coupé's own engine bank (`public/cars/classic-coupe/audio/`): a V8-style sound synthesized for it, on the 2026 Prototype's rpm range */
+/** The coupé's own engine bank (`public/cars/classic-coupe/audio/`): a V8-style sound synthesized for it, on the 2026 Prototype's rpm range; the cartoon sports car shares it */
 const CLASSIC_COUPE_SOUND: CarSoundSource = { id: "classic-coupe", assetDir: "/cars/classic-coupe/audio/", limiterRpm: 12500 };
 
 /** Every car the game knows, whether or not this copy has its files (`hosted-content.ts`) */
@@ -516,6 +517,25 @@ const ALL_CARS: readonly CarDefinition[] = [
     physics: "lc26",
     year: 1985,
     modelUrl: "/cars/classic-coupe/model/classic-coupe.glb",
+    sound: CLASSIC_COUPE_SOUND,
+  },
+  {
+    id: "cartoon-sports-car",
+    classId: "road",
+    title: "Modern Cartoon Sports Car",
+    sub: "2020 · cartoon sports car · drives on 2026 Prototype physics",
+    badge: "CARTOON",
+    quality: "era",
+    credit: {
+      title: "Modern Cartoon Sports Car",
+      author: "RCC Design",
+      url: "https://skfb.ly/oPytt",
+      note: "Rebuilt on the car rig (body, wheels, rims, tyres); fake shadow plane and brake calipers removed, materials simplified, textures downscaled.",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 2020,
+    modelUrl: "/cars/cartoon-sports-car/model/cartoon-sports-car.glb",
     sound: CLASSIC_COUPE_SOUND,
   },
 ];
