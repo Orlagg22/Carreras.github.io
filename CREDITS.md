@@ -35,6 +35,7 @@ LibreCorsa is an independent, non-commercial, open-source web simulator built wi
   | LC-LMDH model (`public/cars/lc-lmdh/model/`) | By **kilianhoffmann13**, CC BY 4.0 |
   | Low-Poly Classic Coupé model (`public/cars/classic-coupe/`) | "car" by **Lodgelus**, CC BY 4.0 |
   | Modern Cartoon Sports Car model (`public/cars/cartoon-sports-car/`) | "Modern Cartoon Sports Car" by **RCC Design**, CC BY 4.0 |
+  | Nissan R89C LM, Mercedes CLR, Sard MC8-R, Lotus Elise GT1 and Renault Sport Spider V6 GT1 models (`public/cars/nissan-r89c-lm/`, `mercedes-clr/`, `sard-mc8-r/`, `lotus-elise-gt1/`, `renault-spider-gt1/`) | By **Dave Love SketchFab** ([https://sketchfab.com/Tyler_Dave](https://sketchfab.com/Tyler_Dave)), CC BY 4.0 |
   | Car sounds ported from Assetto Corsa mods | The mod authors' terms; used non-commercially (see *Car sounds*) |
   | Suzuki Liana model (`public/cars/liana/model/`) | Forza Motorsport 4's (Turn 10 Studios / Microsoft) via a 2015 Assetto Corsa conversion; **not licensed for redistribution** (see *Suzuki Liana*) |
   | Suzuki Liana sounds (`public/cars/liana/audio/`) | The 2015 conversion's sound bank, built from Assetto Corsa (Kunos Simulazioni) samples; **not licensed for redistribution** |
@@ -103,6 +104,20 @@ LibreCorsa is an independent, non-commercial, open-source web simulator built wi
 ### Modern Cartoon Sports Car (`public/cars/cartoon-sports-car/`)
 
 "Modern Cartoon Sports Car" (https://skfb.ly/oPytt) by RCC Design is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). Changes (`scripts/cars/port_cartoon_sports_car.py`, then `scripts/cars/add_cartoon_interior.py` for the cabin: seats, dashboard, steering wheel, tunnel, door cards and headliner, all original): rebuilt on the car rig (body, wheels, rims and tyres, with the brake discs turning with the rims), the fake shadow plane and the brake calipers left out, the clearcoat and specular extensions dropped (the paint is a plain glossy one), and the 4096 px textures downscaled and re-encoded as JPEG. It drives on the 2026 Prototype's physics and shares the Low-Poly Classic Coupé's engine sounds.
+
+### Le Mans and GT1 cars by Dave Love SketchFab (`public/cars/nissan-r89c-lm/`, `public/cars/mercedes-clr/`, `public/cars/sard-mc8-r/`, `public/cars/lotus-elise-gt1/`, `public/cars/renault-spider-gt1/`)
+
+"1996 Renault Sport Spider V6 GT1" (https://skfb.ly/pMVCW) by Dave Love SketchFab is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
+"1997 Lotus Elise GT1" (https://skfb.ly/pMVBX) by Dave Love SketchFab is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
+"1997 Sard MC8-R" (https://skfb.ly/pMVCH) by Dave Love SketchFab is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
+"1999 Mercedes CLR" (https://skfb.ly/pKWHW) by Dave Love SketchFab is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
+"1989 Nissan R89C LM" (https://skfb.ly/pLCTA) by Dave Love SketchFab is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
+Changes (the same for all five): re-oriented and scaled to metres (the Nissan R89C LM by its wheelbase, the Mercedes CLR and the Sard MC8-R by estimated factors of 0.235 and 0.85), split into body, wheels, rims and tyres for the car rig (the brake discs turn with the rims), the cockpit, dash, bumper and chase cameras and the driver's position added, the clearcoat and specular extensions dropped, and the textures downscaled to 1024 px and re-encoded as JPEG. They drive on the 2026 Prototype's physics and share the Low-Poly Classic Coupé's engine sounds.
 
 ### 2025 Pirelli tyres of the 2026 car (`public/cars/shared/tyres/pirelli-2025-ps-*.webp`)
 
