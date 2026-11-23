@@ -57,6 +57,12 @@ const EXPECTED_SOUNDS: Record<CarId, { sound: CarSoundSource; maxIdleRpm: number
   "classic-coupe": { sound: carById("classic-coupe").sound, maxIdleRpm: 4200 },
   // Shares the coupe's bank
   "cartoon-sports-car": { sound: carById("cartoon-sports-car").sound, maxIdleRpm: 4200 },
+  // These five ported GT1/Le Mans cars carry their own sound banks under public/cars/<id>/audio/.
+  "mercedes-clr": { sound: carById("mercedes-clr").sound, maxIdleRpm: 1400 },
+  "nissan-r89c-lm": { sound: carById("nissan-r89c-lm").sound, maxIdleRpm: 1400 },
+  "sard-mc8-r": { sound: carById("sard-mc8-r").sound, maxIdleRpm: 1400 },
+  "lotus-elise-gt1": { sound: carById("lotus-elise-gt1").sound, maxIdleRpm: 1400 },
+  "renault-spider-gt1": { sound: carById("renault-spider-gt1").sound, maxIdleRpm: 1400 },
 };
 
 const MAX_BANK_BYTES = Math.round(3.4 * 1024 * 1024);

@@ -43,6 +43,12 @@ const OVER_WHEEL: Readonly<Record<CarId, OverWheelView>> = {
   // Just behind its steering wheel (0.55 m ahead of the eye), looking over the rim: the cluster, the rim and the driver's
   // hands fill the view, the road above the bonnet (scripts/cars/rebuild_cartoon_interior.py)
   "cartoon-sports-car": { fromEye: [0, 0, 0.19], pitchDeg: -11, fovDeg: 58 },
+  // Ported GT1/Le Mans cockpits use a conservative shared dash-view placement until individually measured.
+  "mercedes-clr": { fromEye: [0, -0.03, 0.58], pitchDeg: -5, fovDeg: 58 },
+  "nissan-r89c-lm": { fromEye: [0, -0.03, 0.58], pitchDeg: -5, fovDeg: 58 },
+  "sard-mc8-r": { fromEye: [0, -0.03, 0.58], pitchDeg: -5, fovDeg: 58 },
+  "lotus-elise-gt1": { fromEye: [0, -0.03, 0.58], pitchDeg: -5, fovDeg: 58 },
+  "renault-spider-gt1": { fromEye: [0, -0.03, 0.58], pitchDeg: -5, fovDeg: 58 },
 };
 
 /** A car not in the table: a little ahead of and below the eye */
