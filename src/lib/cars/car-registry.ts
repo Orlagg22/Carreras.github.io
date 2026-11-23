@@ -37,6 +37,11 @@ export type CarId =
   | "chaparral-2d"
   | "chaparral-2d-67"
   | "porsche-934-rsr"
+  | "mercedes-clr"
+  | "nissan-r89c-lm"
+  | "sard-mc8-r"
+  | "lotus-elise-gt1"
+  | "renault-spider-gt1"
   | "classic-coupe"
   | "cartoon-sports-car";
 
@@ -273,7 +278,7 @@ export const CAR_CLASSES: readonly CarClass[] = [
   { id: "f1", title: "Formula Open-Wheel", sub: "Single-seaters · DRS / active aero", color: "#CCFF00" },
   { id: "gt3", title: "GT3", sub: "Closed-wheel · ABS / TC", color: "#00E5FF" },
   { id: "proto", title: "Prototypes", sub: "Closed-wheel · high downforce · TC", color: "#B388FF" },
-  { id: "classic", title: "Classic GT & Touring", sub: "Sports prototypes, Group 4, Group A and JGTC · 1966–1998", color: "#FFD23F" },
+  { id: "classic", title: "Classic GT & Touring", sub: "Sports prototypes, GT1, Group 4, Group A and JGTC · 1966–1999", color: "#FFD23F" },
   { id: "road", title: "Road cars", sub: "Road-legal · street tyres", color: "#FF8A3D" },
 ];
 
@@ -499,6 +504,97 @@ const ALL_CARS: readonly CarDefinition[] = [
     modelUrl: "/cars/porsche-934-rsr/model/porsche-934-rsr.glb",
     skins: PORSCHE_934_RSR_SKINS,
     sound: PORSCHE_934_RSR_SOUND,
+  },
+
+  {
+    id: "mercedes-clr",
+    classId: "classic",
+    title: "1999 Mercedes CLR",
+    sub: "1999 · Le Mans GT1 · 2026 Prototype physics",
+    badge: "CLR",
+    quality: "era",
+    credit: {
+      title: "1999 Mercedes CLR",
+      author: "Dave Love SketchFab",
+      url: "https://skfb.ly/pKWHW",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 1999,
+    modelUrl: "/cars/mercedes-clr/model/mercedes-clr.glb",
+    sound: { id: "mercedes-clr", assetDir: "/cars/mercedes-clr/audio/", limiterRpm: 12500 },
+  },
+  {
+    id: "nissan-r89c-lm",
+    classId: "classic",
+    title: "1989 Nissan R89C LM",
+    sub: "1989 · Le Mans prototype · 2026 Prototype physics",
+    badge: "R89C",
+    quality: "era",
+    credit: {
+      title: "1989 Nissan R89C LM",
+      author: "Dave Love SketchFab",
+      url: "https://skfb.ly/pLCTA",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 1989,
+    modelUrl: "/cars/nissan-r89c-lm/model/nissan-r89c-lm.glb",
+    sound: { id: "nissan-r89c-lm", assetDir: "/cars/nissan-r89c-lm/audio/", limiterRpm: 12500 },
+  },
+  {
+    id: "sard-mc8-r",
+    classId: "classic",
+    title: "1997 SARD MC8-R",
+    sub: "1997 · Le Mans GT1 · 2026 Prototype physics",
+    badge: "MC8-R",
+    quality: "era",
+    credit: {
+      title: "1997 Sard MC8-R",
+      author: "Dave Love SketchFab",
+      url: "https://skfb.ly/pMVCH",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 1997,
+    modelUrl: "/cars/sard-mc8-r/model/sard-mc8-r.glb",
+    sound: { id: "sard-mc8-r", assetDir: "/cars/sard-mc8-r/audio/", limiterRpm: 12500 },
+  },
+  {
+    id: "lotus-elise-gt1",
+    classId: "classic",
+    title: "1997 Lotus Elise GT1",
+    sub: "1997 · Le Mans GT1 · 2026 Prototype physics",
+    badge: "ELISE GT1",
+    quality: "era",
+    credit: {
+      title: "1997 Lotus Elise GT1",
+      author: "Dave Love SketchFab",
+      url: "https://skfb.ly/pMVBX",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 1997,
+    modelUrl: "/cars/lotus-elise-gt1/model/lotus-elise-gt1.glb",
+    sound: { id: "lotus-elise-gt1", assetDir: "/cars/lotus-elise-gt1/audio/", limiterRpm: 12500 },
+  },
+  {
+    id: "renault-spider-gt1",
+    classId: "classic",
+    title: "1996 Renault Sport Spider V6 GT1",
+    sub: "1996 · Le Mans GT1 · 2026 Prototype physics",
+    badge: "SPIDER GT1",
+    quality: "era",
+    credit: {
+      title: "1996 Renault Sport Spider V6 GT1",
+      author: "Dave Love SketchFab",
+      url: "https://skfb.ly/pMVCW",
+      ...CC_BY,
+    },
+    physics: "lc26",
+    year: 1996,
+    modelUrl: "/cars/renault-spider-gt1/model/renault-spider-gt1.glb",
+    sound: { id: "renault-spider-gt1", assetDir: "/cars/renault-spider-gt1/audio/", limiterRpm: 12500 },
   },
   {
     id: "classic-coupe",

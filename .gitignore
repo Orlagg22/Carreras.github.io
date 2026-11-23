@@ -75,3 +75,15 @@ UI-RESEARCH-*.md
 /reference_data/
 /artifacts/
 *.blend1
+
+
+!/public/cars/mercedes-clr/
+!/public/cars/mercedes-clr/**
+!/public/cars/nissan-r89c-lm/
+!/public/cars/nissan-r89c-lm/**
+!/public/cars/sard-mc8-r/
+!/public/cars/sard-mc8-r/**
+!/public/cars/lotus-elise-gt1/
+!/public/cars/lotus-elise-gt1/**
+!/public/cars/renault-spider-gt1/
+!/public/cars/renault-spider-gt1/**
